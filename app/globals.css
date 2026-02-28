@@ -200,10 +200,6 @@ footer .footer-contact {
   width: 72px;
   height: 72px;
   object-fit: contain;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 6px;
 }
 
 footer .footer-contact .divider {
@@ -263,10 +259,7 @@ footer .footer-contact .divider {
 .logo-image {
   width: 46px;
   height: 46px;
-  border-radius: 12px;
   object-fit: cover;
-  border: 1px solid rgba(47, 91, 215, 0.22);
-  background: #fff;
 }
 
 .logo-text {
@@ -700,10 +693,6 @@ code {
   width: 96px;
   height: 96px;
   object-fit: contain;
-  border-radius: 16px;
-  background: #fff;
-  border: 1px solid rgba(47, 91, 215, 0.16);
-  padding: 6px;
 }
 
 .home-subline {
