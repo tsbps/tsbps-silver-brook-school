@@ -1,0 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;600;700&family=Manrope:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Manrope", "Helvetica Neue", sans-serif;
+
+  --paper: #fbfaf6;
+  --ink-950: #0f1111;
+  --ink-900: #1b1f1e;
+  --ink-700: #2f3533;
+  --ink-600: #4b5551;
+  --ink-500: #65706b;
+
+  --brand-50: #eaf1ff;
+  --brand-200: #c7d9ff;
+  --brand-400: #6f93f5;
+  --brand-600: #2f5bd7;
+  --brand-700: #2345a6;
+
+  --sand-200: #efe1c9;
+  --sun-300: #f2c06c;
+  --rose-300: #f0b7a1;
+  --sky-200: #d1e6f5;
+}
+
+.theme-alt {
+  --paper: #f6f5f1;
+  --brand-600: #3f5b8b;
+  --brand-700: #32486f;
+  --brand-400: #8ea2c7;
+  --brand-200: #ccd6ea;
+  --brand-50: #eaf0fb;
+}

@@ -1,0 +1,14 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI-inspired students activity">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2f6ff" />
+      <stop offset="100%" stop-color="#e2ebff" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)" />
+  <rect x="140" y="180" width="920" height="420" rx="36" fill="#ffffff" opacity="0.95" />
+  <rect x="220" y="240" width="320" height="220" rx="20" fill="#6f93f5" opacity="0.85" />
+  <rect x="580" y="240" width="360" height="140" rx="20" fill="#2f5bd7" opacity="0.85" />
+  <rect x="580" y="400" width="360" height="160" rx="20" fill="#c7d9ff" />
+  <circle cx="330" cy="520" r="60" fill="#2f5bd7" opacity="0.8" />
+</svg>

@@ -1,0 +1,17 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI-inspired sports field">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ecf3ff" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cfe2ff" />
+      <stop offset="100%" stop-color="#9bbbf5" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)" />
+  <rect y="520" width="1200" height="280" fill="url(#field)" />
+  <rect x="180" y="220" width="840" height="260" rx="28" fill="#2f5bd7" opacity="0.9" />
+  <rect x="240" y="260" width="300" height="180" rx="20" fill="#ffffff" opacity="0.9" />
+  <rect x="580" y="260" width="360" height="180" rx="20" fill="#6f93f5" opacity="0.85" />
+</svg>
