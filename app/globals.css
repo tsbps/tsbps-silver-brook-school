@@ -7,6 +7,7 @@
 html,
 body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -14,6 +15,7 @@ body {
   color: var(--ink-900);
   background: var(--paper);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 .splash-screen {
@@ -76,6 +78,7 @@ a {
 
 .site-shell {
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(1000px 600px at 10% -10%, rgba(255, 255, 255, 0.8), transparent),
     radial-gradient(900px 500px at 100% 0%, rgba(233, 245, 255, 0.6), transparent),
@@ -616,61 +619,137 @@ code {
 .nav-toggle {
   display: none;
   margin-left: auto;
-  background: transparent;
-  border: none;
-  padding: 6px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(47, 91, 215, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  align-items: center;
+  justify-content: center;
+  grid-auto-rows: 2px;
+  gap: 5px;
+  padding: 0;
   cursor: pointer;
-  gap: 6px;
+  box-shadow: 0 8px 20px rgba(15, 24, 20, 0.08);
 }
 
 .nav-toggle span {
   display: block;
-  width: 26px;
+  width: 20px;
   height: 2px;
-  background: var(--ink-900);
+  background: var(--ink-800);
   border-radius: 999px;
 }
 
-.nav-drawer {
+.mobile-menu {
   position: fixed;
   inset: 0;
-  background: rgba(12, 18, 15, 0.35);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
-  z-index: 2100;
+  z-index: 6000;
+  transition: opacity 0.22s ease;
 }
 
-.nav-drawer.open {
+.mobile-menu.is-open {
   opacity: 1;
   pointer-events: auto;
 }
 
-.nav-drawer-panel {
+.mobile-menu-panel {
   position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: min(320px, 85vw);
-  background: #ffffff;
-  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.2);
-  transform: translateX(100%);
-  transition: transform 0.25s ease;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  z-index: 2101;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  background: rgba(246, 249, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 18px 14px 22px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 14px;
+  transform: translateY(-14px) scale(0.985);
+  transition: transform 0.24s ease;
+  z-index: 1;
+  overflow: hidden;
 }
 
-.nav-drawer.open .nav-drawer-panel {
-  transform: translateX(0%);
+.mobile-menu.is-open .mobile-menu-panel {
+  transform: translateY(0) scale(1);
 }
 
-.nav-drawer-head {
+.mobile-menu-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(47, 91, 215, 0.16);
+}
+
+.mobile-menu-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mobile-menu-brand .logo-image {
+  width: 42px;
+  height: 42px;
+}
+
+.mobile-menu-brand .logo-text {
+  min-width: 0;
+}
+
+.mobile-menu-brand .logo-text strong {
+  font-size: 1rem;
+}
+
+.mobile-menu-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(47, 91, 215, 0.2);
+  background: #ffffff;
+  color: var(--ink-900);
+  font-size: 1.3rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.mobile-menu-links {
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 4px 0 6px;
+}
+
+.mobile-menu-links a {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(47, 91, 215, 0.16);
+  background: #ffffff;
+  color: var(--ink-800);
+  font-weight: 600;
+}
+
+.mobile-menu-links a:hover {
+  background: #f3f7ff;
+}
+
+.mobile-menu-links .button {
+  margin-top: 6px;
+  margin-bottom: 0;
+  justify-content: center;
+  width: 100%;
 }
 
 .nav-close {
@@ -678,19 +757,6 @@ code {
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
-}
-
-.nav-drawer-links {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  font-weight: 600;
-  color: var(--ink-700);
-}
-
-.nav-drawer-links a {
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 @media (max-width: 960px) {
@@ -702,6 +768,30 @@ code {
   .nav-toggle {
     display: grid;
     align-self: center;
+  }
+
+  .nav-bar {
+    padding: 12px 0;
+    gap: 10px;
+  }
+
+  .logo {
+    gap: 10px;
+  }
+
+  .logo-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .logo-text strong {
+    font-size: 1.08rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .mobile-menu-panel {
+    padding: 14px 12px 18px;
   }
 }
 
