@@ -12,6 +12,15 @@ export default function ArticleCarousel({
   basePath: "/news" | "/blog";
 }) {
   const railRef = useRef<HTMLDivElement | null>(null);
+  const formatDate = (value: string) => {
+    const parsed = Date.parse(value);
+    if (Number.isNaN(parsed)) return value;
+    return new Date(parsed).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   const scrollByCards = (direction: "left" | "right") => {
     if (!railRef.current) return;
@@ -36,13 +45,17 @@ export default function ArticleCarousel({
         {posts.map((post) => (
           <article className="article-card" key={post.id}>
             <h3>{post.title}</h3>
-            <p className="article-date">{post.date}</p>
-            <p className="article-category">{post.category}</p>
             <img src={post.image || "/images/ai-campus-1.svg"} alt={post.title} />
+            <div className="article-meta-row">
+              <div>
+                <p className="article-date">{formatDate(post.date)}</p>
+                <p className="article-category">{post.category}</p>
+              </div>
+              <Link className="button secondary article-read-btn" href={`${basePath}/${post.slug}`}>
+                Show In Detail
+              </Link>
+            </div>
             <p>{post.summary}</p>
-            <Link className="button secondary article-read-btn" href={`${basePath}/${post.slug}`}>
-              Show In Detail
-            </Link>
           </article>
         ))}
       </div>

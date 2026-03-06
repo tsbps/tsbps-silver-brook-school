@@ -38,6 +38,29 @@ interface AdminDashboardProps {
   initialConfig: SiteConfig;
 }
 
+const BLOG_CATEGORIES = [
+  "Academics",
+  "Student Life",
+  "Activities",
+  "Sports",
+  "Technology",
+  "Health & Wellness",
+  "Parenting & Guidance",
+  "Achievements",
+  "Others / Miscellaneous",
+];
+
+const NEWS_CATEGORIES = [
+  "Announcements",
+  "Events",
+  "Achievements",
+  "Competitions",
+  "Admissions",
+  "Infrastructure",
+  "Notices",
+  "Others / Miscellaneous",
+];
+
 function normalizeEventInput(value: string): SiteEvent[] {
   return value
     .split("\n")
@@ -62,8 +85,8 @@ function emptyPost(type: "news" | "blog"): SitePost {
     slug: `${type}-${now}`,
     date: "",
     title: "",
-    category: type === "news" ? "News" : "Blog",
-    image: "/images/ai-campus-1.svg",
+    category: type === "news" ? NEWS_CATEGORIES[0] : BLOG_CATEGORIES[0],
+    image: "/logo.png",
     summary: "",
     content: "",
     status: "draft",
@@ -91,6 +114,8 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
   const [status, setStatus] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [expandedNews, setExpandedNews] = useState<Record<string, boolean>>({});
+  const [expandedBlogs, setExpandedBlogs] = useState<Record<string, boolean>>({});
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
   const eventsPreview = useMemo(() => normalizeEventInput(eventsRawInput), [eventsRawInput]);
@@ -122,6 +147,16 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
       ...prev,
       [type]: [empty, ...prev[type]],
     }));
+    if (type === "newsPosts") setExpandedNews((prev) => ({ ...prev, [empty.id]: true }));
+    else setExpandedBlogs((prev) => ({ ...prev, [empty.id]: true }));
+  };
+
+  const confirmDeletePost = (type: "newsPosts" | "blogPosts", id: string) => {
+    const accepted = window.confirm("Delete this article permanently?");
+    if (!accepted) return;
+    removePost(type, id);
+    if (type === "newsPosts") setExpandedNews((prev) => ({ ...prev, [id]: false }));
+    else setExpandedBlogs((prev) => ({ ...prev, [id]: false }));
   };
 
   const applyFormat = (postId: string, type: "bold" | "italic" | "line") => {
@@ -429,67 +464,102 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
             {config.newsPosts.map((post) => (
               <article className="admin-article-card" key={post.id}>
                 <div className="admin-article-actions">
-                  <button type="button" className="button secondary" onClick={() => removePost("newsPosts", post.id)}>
-                    Delete
-                  </button>
-                  <select
-                    value={post.status}
-                    onChange={(e) => updatePost("newsPosts", post.id, { status: e.target.value as SitePost["status"] })}
+                  <strong>{post.title || "Untitled news"}</strong>
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() =>
+                      setExpandedNews((prev) => ({
+                        ...prev,
+                        [post.id]: !prev[post.id],
+                      }))
+                    }
                   >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="scheduled">Scheduled</option>
-                  </select>
-                  {post.status === "scheduled" ? (
-                    <input
-                      type="datetime-local"
-                      value={post.scheduledAt || ""}
-                      onChange={(e) => updatePost("newsPosts", post.id, { scheduledAt: e.target.value })}
-                    />
-                  ) : null}
+                    {expandedNews[post.id] ? "Close Edit" : "Edit"}
+                  </button>
                 </div>
-                <div className="admin-grid">
-                  <label>
-                    Title
-                    <input value={post.title} placeholder="Article title" onChange={(e) => updatePost("newsPosts", post.id, { title: e.target.value })} />
-                  </label>
-                  <label>
-                    Slug
-                    <input value={post.slug} placeholder="article-slug" onChange={(e) => updatePost("newsPosts", post.id, { slug: slugify(e.target.value) })} />
-                  </label>
-                  <label>
-                    Date
-                    <input value={post.date} placeholder="March 2026" onChange={(e) => updatePost("newsPosts", post.id, { date: e.target.value })} />
-                  </label>
-                  <label>
-                    Category
-                    <input value={post.category} placeholder="Admissions" onChange={(e) => updatePost("newsPosts", post.id, { category: e.target.value })} />
-                  </label>
-                  <label>
-                    Image URL / Path
-                    <input value={post.image} placeholder="/images/ai-campus-1.svg" onChange={(e) => updatePost("newsPosts", post.id, { image: e.target.value })} />
-                  </label>
-                </div>
-                <label className="admin-field">
-                  Summary
-                  <textarea rows={2} value={post.summary} onChange={(e) => updatePost("newsPosts", post.id, { summary: e.target.value })} />
-                </label>
-                <div className="admin-rich-toolbar">
-                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "bold")}>Bold</button>
-                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "italic")}>Italic</button>
-                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "line")}>Bullet</button>
-                </div>
-                <label className="admin-field">
-                  Content
-                  <textarea
-                    rows={6}
-                    ref={(node) => {
-                      textareaRefs.current[post.id] = node;
-                    }}
-                    value={post.content}
-                    onChange={(e) => updatePost("newsPosts", post.id, { content: e.target.value })}
-                  />
-                </label>
+                <p className="admin-help">
+                  {post.date || "No date"} · {post.category || "No category"} · {post.status}
+                </p>
+                {expandedNews[post.id] ? (
+                  <>
+                    <div className="admin-grid">
+                      <label>
+                        Title
+                        <input value={post.title} placeholder="Article title" onChange={(e) => updatePost("newsPosts", post.id, { title: e.target.value })} />
+                      </label>
+                      <label>
+                        Slug
+                        <input value={post.slug} placeholder="article-slug" onChange={(e) => updatePost("newsPosts", post.id, { slug: slugify(e.target.value) })} />
+                      </label>
+                      <label>
+                        Date
+                        <input type="date" value={post.date} onChange={(e) => updatePost("newsPosts", post.id, { date: e.target.value })} />
+                      </label>
+                      <label>
+                        Category
+                        <select value={post.category} onChange={(e) => updatePost("newsPosts", post.id, { category: e.target.value })}>
+                          {(NEWS_CATEGORIES.includes(post.category)
+                            ? NEWS_CATEGORIES
+                            : [post.category, ...NEWS_CATEGORIES]
+                          ).map((item) => (
+                            <option key={item} value={item}>
+                              {item}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Status
+                        <select
+                          value={post.status}
+                          onChange={(e) => updatePost("newsPosts", post.id, { status: e.target.value as SitePost["status"] })}
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="published">Published</option>
+                          <option value="scheduled">Scheduled</option>
+                        </select>
+                      </label>
+                      {post.status === "scheduled" ? (
+                        <label>
+                          Schedule Time
+                          <input
+                            type="datetime-local"
+                            value={post.scheduledAt || ""}
+                            onChange={(e) => updatePost("newsPosts", post.id, { scheduledAt: e.target.value })}
+                          />
+                        </label>
+                      ) : null}
+                      <label>
+                        Image URL / Path
+                        <input value={post.image} placeholder="/logo.png" onChange={(e) => updatePost("newsPosts", post.id, { image: e.target.value })} />
+                      </label>
+                    </div>
+                    <label className="admin-field">
+                      Summary
+                      <textarea rows={2} value={post.summary} onChange={(e) => updatePost("newsPosts", post.id, { summary: e.target.value })} />
+                    </label>
+                    <div className="admin-rich-toolbar">
+                      <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "bold")}>Bold</button>
+                      <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "italic")}>Italic</button>
+                      <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "line")}>Bullet</button>
+                      <button type="button" className="button secondary" onClick={() => confirmDeletePost("newsPosts", post.id)}>
+                        Delete Article
+                      </button>
+                    </div>
+                    <label className="admin-field">
+                      Content
+                      <textarea
+                        rows={6}
+                        ref={(node) => {
+                          textareaRefs.current[post.id] = node;
+                        }}
+                        value={post.content}
+                        onChange={(e) => updatePost("newsPosts", post.id, { content: e.target.value })}
+                      />
+                    </label>
+                  </>
+                ) : null}
               </article>
             ))}
           </div>
@@ -505,67 +575,102 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
             {config.blogPosts.map((post) => (
               <article className="admin-article-card" key={post.id}>
                 <div className="admin-article-actions">
-                  <button type="button" className="button secondary" onClick={() => removePost("blogPosts", post.id)}>
-                    Delete
-                  </button>
-                  <select
-                    value={post.status}
-                    onChange={(e) => updatePost("blogPosts", post.id, { status: e.target.value as SitePost["status"] })}
+                  <strong>{post.title || "Untitled blog"}</strong>
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() =>
+                      setExpandedBlogs((prev) => ({
+                        ...prev,
+                        [post.id]: !prev[post.id],
+                      }))
+                    }
                   >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="scheduled">Scheduled</option>
-                  </select>
-                  {post.status === "scheduled" ? (
-                    <input
-                      type="datetime-local"
-                      value={post.scheduledAt || ""}
-                      onChange={(e) => updatePost("blogPosts", post.id, { scheduledAt: e.target.value })}
-                    />
-                  ) : null}
+                    {expandedBlogs[post.id] ? "Close Edit" : "Edit"}
+                  </button>
                 </div>
-                <div className="admin-grid">
-                  <label>
-                    Title
-                    <input value={post.title} placeholder="Article title" onChange={(e) => updatePost("blogPosts", post.id, { title: e.target.value })} />
-                  </label>
-                  <label>
-                    Slug
-                    <input value={post.slug} placeholder="article-slug" onChange={(e) => updatePost("blogPosts", post.id, { slug: slugify(e.target.value) })} />
-                  </label>
-                  <label>
-                    Date
-                    <input value={post.date} placeholder="March 2026" onChange={(e) => updatePost("blogPosts", post.id, { date: e.target.value })} />
-                  </label>
-                  <label>
-                    Category
-                    <input value={post.category} placeholder="Learning" onChange={(e) => updatePost("blogPosts", post.id, { category: e.target.value })} />
-                  </label>
-                  <label>
-                    Image URL / Path
-                    <input value={post.image} placeholder="/images/ai-campus-1.svg" onChange={(e) => updatePost("blogPosts", post.id, { image: e.target.value })} />
-                  </label>
-                </div>
-                <label className="admin-field">
-                  Summary
-                  <textarea rows={2} value={post.summary} onChange={(e) => updatePost("blogPosts", post.id, { summary: e.target.value })} />
-                </label>
-                <div className="admin-rich-toolbar">
-                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "bold")}>Bold</button>
-                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "italic")}>Italic</button>
-                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "line")}>Bullet</button>
-                </div>
-                <label className="admin-field">
-                  Content
-                  <textarea
-                    rows={6}
-                    ref={(node) => {
-                      textareaRefs.current[post.id] = node;
-                    }}
-                    value={post.content}
-                    onChange={(e) => updatePost("blogPosts", post.id, { content: e.target.value })}
-                  />
-                </label>
+                <p className="admin-help">
+                  {post.date || "No date"} · {post.category || "No category"} · {post.status}
+                </p>
+                {expandedBlogs[post.id] ? (
+                  <>
+                    <div className="admin-grid">
+                      <label>
+                        Title
+                        <input value={post.title} placeholder="Article title" onChange={(e) => updatePost("blogPosts", post.id, { title: e.target.value })} />
+                      </label>
+                      <label>
+                        Slug
+                        <input value={post.slug} placeholder="article-slug" onChange={(e) => updatePost("blogPosts", post.id, { slug: slugify(e.target.value) })} />
+                      </label>
+                      <label>
+                        Date
+                        <input type="date" value={post.date} onChange={(e) => updatePost("blogPosts", post.id, { date: e.target.value })} />
+                      </label>
+                      <label>
+                        Category
+                        <select value={post.category} onChange={(e) => updatePost("blogPosts", post.id, { category: e.target.value })}>
+                          {(BLOG_CATEGORIES.includes(post.category)
+                            ? BLOG_CATEGORIES
+                            : [post.category, ...BLOG_CATEGORIES]
+                          ).map((item) => (
+                            <option key={item} value={item}>
+                              {item}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Status
+                        <select
+                          value={post.status}
+                          onChange={(e) => updatePost("blogPosts", post.id, { status: e.target.value as SitePost["status"] })}
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="published">Published</option>
+                          <option value="scheduled">Scheduled</option>
+                        </select>
+                      </label>
+                      {post.status === "scheduled" ? (
+                        <label>
+                          Schedule Time
+                          <input
+                            type="datetime-local"
+                            value={post.scheduledAt || ""}
+                            onChange={(e) => updatePost("blogPosts", post.id, { scheduledAt: e.target.value })}
+                          />
+                        </label>
+                      ) : null}
+                      <label>
+                        Image URL / Path
+                        <input value={post.image} placeholder="/logo.png" onChange={(e) => updatePost("blogPosts", post.id, { image: e.target.value })} />
+                      </label>
+                    </div>
+                    <label className="admin-field">
+                      Summary
+                      <textarea rows={2} value={post.summary} onChange={(e) => updatePost("blogPosts", post.id, { summary: e.target.value })} />
+                    </label>
+                    <div className="admin-rich-toolbar">
+                      <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "bold")}>Bold</button>
+                      <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "italic")}>Italic</button>
+                      <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "line")}>Bullet</button>
+                      <button type="button" className="button secondary" onClick={() => confirmDeletePost("blogPosts", post.id)}>
+                        Delete Article
+                      </button>
+                    </div>
+                    <label className="admin-field">
+                      Content
+                      <textarea
+                        rows={6}
+                        ref={(node) => {
+                          textareaRefs.current[post.id] = node;
+                        }}
+                        value={post.content}
+                        onChange={(e) => updatePost("blogPosts", post.id, { content: e.target.value })}
+                      />
+                    </label>
+                  </>
+                ) : null}
               </article>
             ))}
           </div>

@@ -15,9 +15,7 @@ export default async function Footer() {
           <div className="footer-contact">
             <h4>{config.schoolName}</h4>
             <div className="info-row">
-              <span className="icon" aria-hidden="true">
-                📍
-              </span>
+              <span className="icon icon-location" aria-hidden="true" />
               <a
                 href="https://www.google.com/maps/place/Kuthirai+Vandi+Theru,+Gobichettipalayam,+Tamil+Nadu+638476/@11.4549658,77.4262199,3868m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3ba93d97aa5c5915:0x255ab43b25c6212b!8m2!3d11.4549451!4d77.4365196!16zL20vMDRqNXN3?entry=ttu&g_ep=EgoyMDI2MDIyNS4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
@@ -28,15 +26,11 @@ export default async function Footer() {
             </div>
             <div className="divider" />
             <div className="info-row">
-              <span className="icon" aria-hidden="true">
-                📞
-              </span>
+              <span className="icon icon-phone" aria-hidden="true" />
               <a href={`tel:${formatPhoneForHref(config.contactPhone)}`}>Phone: {config.contactPhone}</a>
             </div>
             <div className="info-row">
-              <span className="icon" aria-hidden="true">
-                ✉️
-              </span>
+              <span className="icon icon-mail" aria-hidden="true" />
               <a href={`mailto:${config.contactEmail}`}>Email: {config.contactEmail}</a>
             </div>
           </div>

@@ -179,17 +179,13 @@ export default async function Home() {
           </div>
           <div className="card home-contact-card home-theme-card">
             <div className="info-row">
-              <span className="icon" aria-hidden="true">
-                📞
-              </span>
+              <span className="icon icon-phone" aria-hidden="true" />
               <a href={`tel:${formatPhoneForHref(config.contactPhone)}`}>
                 <strong>Call Us:</strong> {config.contactPhone}
               </a>
             </div>
             <div className="info-row">
-              <span className="icon" aria-hidden="true">
-                ✉️
-              </span>
+              <span className="icon icon-mail" aria-hidden="true" />
               <a href={`mailto:${config.contactEmail}`}>
                 <strong>Email:</strong> {config.contactEmail}
               </a>

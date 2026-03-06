@@ -120,6 +120,13 @@ export default function Nav() {
       </div>
 
       <div id="mobile-menu" className={`mobile-menu ${open ? "is-open" : ""}`} aria-hidden={!open}>
+        <button
+          type="button"
+          className="mobile-menu-backdrop"
+          aria-label="Close mobile menu"
+          onClick={() => setOpen(false)}
+          tabIndex={open ? 0 : -1}
+        />
         <aside className="mobile-menu-panel" role="dialog" aria-modal="true" aria-label="Mobile navigation">
           <div className="mobile-menu-head">
             <div className="mobile-menu-brand">
@@ -135,7 +142,7 @@ export default function Nav() {
               aria-label="Close menu"
               onClick={() => setOpen(false)}
             >
-              ✕
+              X
             </button>
           </div>
           <nav className="mobile-menu-links" aria-label="Mobile links">
