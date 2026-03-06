@@ -13,6 +13,27 @@ interface InquiryItem {
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const INQUIRIES_PATH = path.join(DATA_DIR, "inquiries.json");
+const KV_KEY = "site-inquiries";
+const FIREBASE_KEY = "inquiries";
+
+function hasKvConfig() {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+function hasFirebaseConfig() {
+  return Boolean(process.env.FIREBASE_DB_URL && process.env.FIREBASE_DB_SECRET);
+}
+
+async function kvFetch(pathname: string) {
+  const baseUrl = process.env.KV_REST_API_URL as string;
+  const token = process.env.KV_REST_API_TOKEN as string;
+  const response = await fetch(`${baseUrl}${pathname}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`KV request failed: ${response.status}`);
+  return response.json();
+}
 
 async function readInquiries(): Promise<InquiryItem[]> {
   try {
@@ -21,6 +42,53 @@ async function readInquiries(): Promise<InquiryItem[]> {
   } catch {
     return [];
   }
+}
+
+async function writeInquiriesLocal(next: InquiryItem[]) {
+  await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.writeFile(INQUIRIES_PATH, JSON.stringify(next, null, 2), "utf8");
+}
+
+async function readInquiriesFromKv(): Promise<InquiryItem[]> {
+  if (!hasKvConfig()) return [];
+  try {
+    const result = (await kvFetch(`/get/${encodeURIComponent(KV_KEY)}`)) as { result?: string };
+    if (!result?.result) return [];
+    const parsed = JSON.parse(result.result) as InquiryItem[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeInquiriesToKv(next: InquiryItem[]) {
+  if (!hasKvConfig()) return;
+  const payload = encodeURIComponent(JSON.stringify(next));
+  await kvFetch(`/set/${encodeURIComponent(KV_KEY)}/${payload}`);
+}
+
+async function readInquiriesFromFirebase(): Promise<InquiryItem[]> {
+  if (!hasFirebaseConfig()) return [];
+  const base = process.env.FIREBASE_DB_URL as string;
+  const secret = process.env.FIREBASE_DB_SECRET as string;
+  const response = await fetch(`${base.replace(/\/$/, "")}/${FIREBASE_KEY}.json?auth=${secret}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
+  const payload = (await response.json()) as InquiryItem[] | null;
+  return Array.isArray(payload) ? payload : [];
+}
+
+async function writeInquiriesToFirebase(next: InquiryItem[]) {
+  if (!hasFirebaseConfig()) return;
+  const base = process.env.FIREBASE_DB_URL as string;
+  const secret = process.env.FIREBASE_DB_SECRET as string;
+  const response = await fetch(`${base.replace(/\/$/, "")}/${FIREBASE_KEY}.json?auth=${secret}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(next),
+  });
+  if (!response.ok) throw new Error(`Firebase write failed: ${response.status}`);
 }
 
 export async function POST(request: Request) {
@@ -44,10 +112,34 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    await fs.mkdir(DATA_DIR, { recursive: true });
+    if (hasFirebaseConfig()) {
+      const existing = await readInquiriesFromFirebase();
+      existing.unshift(item);
+      await writeInquiriesToFirebase(existing);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (hasKvConfig()) {
+      const existing = await readInquiriesFromKv();
+      existing.unshift(item);
+      await writeInquiriesToKv(existing);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (process.env.VERCEL === "1") {
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "Inquiry storage is not configured. Add Firebase (FIREBASE_DB_URL, FIREBASE_DB_SECRET) or KV (KV_REST_API_URL, KV_REST_API_TOKEN).",
+        },
+        { status: 500 }
+      );
+    }
+
     const existing = await readInquiries();
     existing.unshift(item);
-    await fs.writeFile(INQUIRIES_PATH, JSON.stringify(existing, null, 2), "utf8");
+    await writeInquiriesLocal(existing);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false, message: "Unable to submit inquiry" }, { status: 500 });

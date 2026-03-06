@@ -15,6 +15,14 @@ option {
   color: var(--ink-900);
 }
 
+select {
+  background-color: color-mix(in srgb, var(--surface) 92%, white);
+}
+
+select:focus-visible {
+  outline: none;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--ink-900);
@@ -2016,6 +2024,8 @@ code {
 .admin-panel select,
 .school-calendar-controls select,
 .calendar-modal-filters select {
+  min-height: 42px;
+  padding: 10px 36px 10px 12px;
   border: 1px solid color-mix(in srgb, var(--highlight) 70%, rgba(47, 91, 215, 0.24));
   border-radius: 10px;
   background-color: color-mix(in srgb, var(--surface) 94%, white);

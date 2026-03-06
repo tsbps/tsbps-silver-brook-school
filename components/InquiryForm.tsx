@@ -14,26 +14,29 @@ export default function InquiryForm() {
     event.preventDefault();
     setLoading(true);
     setStatus("Submitting...");
+    try {
+      const response = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, email, message }),
+      });
 
-    const response = await fetch("/api/inquiry", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, email, message }),
-    });
+      const result = (await response.json()) as { ok: boolean; message?: string };
+      if (!result.ok) {
+        setStatus(result.message || "Submission failed");
+        return;
+      }
 
-    const result = (await response.json()) as { ok: boolean; message?: string };
-    setLoading(false);
-
-    if (!result.ok) {
-      setStatus(result.message || "Submission failed");
-      return;
+      setName("");
+      setPhone("");
+      setEmail("");
+      setMessage("");
+      setStatus("Inquiry submitted successfully.");
+    } catch {
+      setStatus("Submission failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setName("");
-    setPhone("");
-    setEmail("");
-    setMessage("");
-    setStatus("Inquiry submitted. The school team can review it from data records.");
   }
 
   return (
