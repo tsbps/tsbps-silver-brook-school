@@ -9,7 +9,12 @@ export async function POST() {
     return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
   }
 
-  const config = await resetSiteConfigToDefault();
-  revalidatePath("/", "layout");
-  return NextResponse.json({ ok: true, config });
+  try {
+    const config = await resetSiteConfigToDefault();
+    revalidatePath("/", "layout");
+    return NextResponse.json({ ok: true, config });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Rollback failed";
+    return NextResponse.json({ ok: false, message }, { status: 500 });
+  }
 }

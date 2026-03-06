@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ALL_MANAGED_PAGES,
   defaultSiteConfig,
@@ -55,6 +56,7 @@ function normalizeEventInput(value: string): SiteEvent[] {
 }
 
 export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
+  const router = useRouter();
   const [config, setConfig] = useState<SiteConfig>(initialConfig);
   const [eventsRawInput, setEventsRawInput] = useState(
     initialConfig.events.map((event) => `${event.date} | ${event.title}`).join("\n")
@@ -75,38 +77,49 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
       events: eventsPreview,
     };
 
-    const response = await fetch("/api/admin/config", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch("/api/admin/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const result = (await response.json()) as { ok: boolean; message?: string; config?: SiteConfig };
-    if (!result.ok || !result.config) {
+      const result = (await response.json()) as { ok: boolean; message?: string; config?: SiteConfig };
+      if (!result.ok || !result.config) {
+        setStatus(result.message || "Unable to save changes");
+        return;
+      }
+
+      setConfig(result.config);
+      setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
+      setStatus("Saved successfully");
+      router.refresh();
+    } catch {
+      setStatus("Save failed due to network/server error");
+    } finally {
       setSaving(false);
-      setStatus(result.message || "Unable to save changes");
-      return;
     }
-
-    setConfig(result.config);
-    setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
-    setSaving(false);
-    setStatus("Saved successfully");
   }
 
   async function resetToBaseline() {
     setSaving(true);
     setStatus("Rolling back to baseline...");
-    const response = await fetch("/api/admin/config/reset", { method: "POST" });
-    const result = (await response.json()) as { ok: boolean; message?: string; config?: SiteConfig };
-    setSaving(false);
-    if (!result.ok || !result.config) {
-      setStatus(result.message || "Rollback failed");
-      return;
+    try {
+      const response = await fetch("/api/admin/config/reset", { method: "POST" });
+      const result = (await response.json()) as { ok: boolean; message?: string; config?: SiteConfig };
+      if (!result.ok || !result.config) {
+        setStatus(result.message || "Rollback failed");
+        return;
+      }
+      setConfig(result.config);
+      setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
+      setStatus("Rolled back to baseline config");
+      router.refresh();
+    } catch {
+      setStatus("Rollback failed due to network/server error");
+    } finally {
+      setSaving(false);
     }
-    setConfig(result.config);
-    setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
-    setStatus("Rolled back to baseline config");
   }
 
   async function uploadLogoToGitHub() {
@@ -120,28 +133,33 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
     const formData = new FormData();
     formData.append("file", logoUploadFile);
 
-    const response = await fetch("/api/admin/upload-logo", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const response = await fetch("/api/admin/upload-logo", {
+        method: "POST",
+        body: formData,
+      });
 
-    const result = (await response.json()) as {
-      ok: boolean;
-      message?: string;
-      logoPath?: string;
-      committedPath?: string;
-    };
-    setUploadingLogo(false);
+      const result = (await response.json()) as {
+        ok: boolean;
+        message?: string;
+        logoPath?: string;
+        committedPath?: string;
+      };
 
-    if (!result.ok || !result.logoPath) {
-      setStatus(result.message || "Logo upload failed");
-      return;
+      if (!result.ok || !result.logoPath) {
+        setStatus(result.message || "Logo upload failed");
+        return;
+      }
+
+      setConfig((prev) => ({ ...prev, logoPath: result.logoPath as string }));
+      setStatus(
+        `Logo uploaded (${result.committedPath}). Click "Save Settings" to apply it to website config.`
+      );
+    } catch {
+      setStatus("Logo upload failed due to network/server error");
+    } finally {
+      setUploadingLogo(false);
     }
-
-    setConfig((prev) => ({ ...prev, logoPath: result.logoPath as string }));
-    setStatus(
-      `Logo uploaded (${result.committedPath}). Click "Save Settings" to apply it to website config.`
-    );
   }
 
   async function logout() {

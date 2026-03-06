@@ -943,14 +943,6 @@ code {
   color: var(--ink-600);
 }
 
-.home-thumb {
-  height: 72px;
-  width: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid rgba(47, 91, 215, 0.14);
-}
-
 .home-cards-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

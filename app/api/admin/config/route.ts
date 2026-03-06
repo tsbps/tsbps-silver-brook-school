@@ -25,7 +25,8 @@ export async function PUT(request: Request) {
     const config = await updateSiteConfig(payload);
     revalidatePath("/", "layout");
     return NextResponse.json({ ok: true, config });
-  } catch {
-    return NextResponse.json({ ok: false, message: "Invalid payload" }, { status: 400 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Save failed";
+    return NextResponse.json({ ok: false, message }, { status: 500 });
   }
 }

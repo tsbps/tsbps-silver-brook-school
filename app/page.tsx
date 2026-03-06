@@ -143,11 +143,6 @@ export default async function Home() {
                 <span>Foundation</span>
               </div>
             </div>
-            <div className="grid grid-3">
-              <img className="home-thumb" src="/images/ai-campus-1.svg" alt="Smart classroom" />
-              <img className="home-thumb" src="/images/ai-campus-2.svg" alt="STEM learning lab" />
-              <img className="home-thumb" src="/images/ai-campus-3.svg" alt="Activity space" />
-            </div>
           </aside>
         </div>
       </section>

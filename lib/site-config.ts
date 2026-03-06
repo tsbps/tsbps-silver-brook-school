@@ -84,12 +84,15 @@ function hasKvConfig() {
 async function kvFetch(pathname: string) {
   const baseUrl = process.env.KV_REST_API_URL as string;
   const token = process.env.KV_REST_API_TOKEN as string;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
   const response = await fetch(`${baseUrl}${pathname}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
     cache: "no-store",
-  });
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeoutId));
   if (!response.ok) {
     throw new Error(`KV request failed: ${response.status}`);
   }
