@@ -41,7 +41,10 @@ function normalizeEventInput(value: string): SiteEvent[] {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line, index) => {
-      const [date, ...titleParts] = line.split("|");
+      const pipeParts = line.split("|");
+      const dashParts = line.split(" - ");
+      const parts = pipeParts.length > 1 ? pipeParts : dashParts;
+      const [date, ...titleParts] = parts;
       return {
         id: `event-${index + 1}`,
         date: (date ?? "").trim(),
@@ -238,96 +241,122 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
           <div className="admin-grid">
             <label>
               Page Background
-              <input
-                type="color"
-                value={config.theme.paper}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, paper: event.target.value },
-                  })
-                }
-              />
-              <input
-                value={config.theme.paper}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, paper: event.target.value },
-                  })
-                }
-                placeholder="#fbfaf6"
-              />
+              <div className="admin-theme-field">
+                <input
+                  type="color"
+                  value={config.theme.paper}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, paper: event.target.value },
+                    })
+                  }
+                />
+                <input
+                  value={config.theme.paper}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, paper: event.target.value },
+                    })
+                  }
+                  placeholder="#fbfaf6"
+                />
+              </div>
             </label>
             <label>
               Brand 400
-              <input
-                type="color"
-                value={config.theme.brand400}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, brand400: event.target.value },
-                  })
-                }
-              />
-              <input
-                value={config.theme.brand400}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, brand400: event.target.value },
-                  })
-                }
-                placeholder="#6f93f5"
-              />
+              <div className="admin-theme-field">
+                <input
+                  type="color"
+                  value={config.theme.brand400}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, brand400: event.target.value },
+                    })
+                  }
+                />
+                <input
+                  value={config.theme.brand400}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, brand400: event.target.value },
+                    })
+                  }
+                  placeholder="#6f93f5"
+                />
+              </div>
             </label>
             <label>
               Brand 600
-              <input
-                type="color"
-                value={config.theme.brand600}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, brand600: event.target.value },
-                  })
-                }
-              />
-              <input
-                value={config.theme.brand600}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, brand600: event.target.value },
-                  })
-                }
-                placeholder="#2f5bd7"
-              />
+              <div className="admin-theme-field">
+                <input
+                  type="color"
+                  value={config.theme.brand600}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, brand600: event.target.value },
+                    })
+                  }
+                />
+                <input
+                  value={config.theme.brand600}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, brand600: event.target.value },
+                    })
+                  }
+                  placeholder="#2f5bd7"
+                />
+              </div>
             </label>
             <label>
               Brand 700
-              <input
-                type="color"
-                value={config.theme.brand700}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, brand700: event.target.value },
-                  })
-                }
-              />
-              <input
-                value={config.theme.brand700}
-                onChange={(event) =>
-                  setConfig({
-                    ...config,
-                    theme: { ...config.theme, brand700: event.target.value },
-                  })
-                }
-                placeholder="#2345a6"
-              />
+              <div className="admin-theme-field">
+                <input
+                  type="color"
+                  value={config.theme.brand700}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, brand700: event.target.value },
+                    })
+                  }
+                />
+                <input
+                  value={config.theme.brand700}
+                  onChange={(event) =>
+                    setConfig({
+                      ...config,
+                      theme: { ...config.theme, brand700: event.target.value },
+                    })
+                  }
+                  placeholder="#2345a6"
+                />
+              </div>
             </label>
+          </div>
+          <div className="admin-color-strip">
+            <div className="admin-color-swatch">
+              Paper
+              <span className="admin-color-preview" style={{ background: config.theme.paper }} />
+            </div>
+            <div className="admin-color-swatch">
+              Brand 400
+              <span className="admin-color-preview" style={{ background: config.theme.brand400 }} />
+            </div>
+            <div className="admin-color-swatch">
+              Brand 600
+              <span className="admin-color-preview" style={{ background: config.theme.brand600 }} />
+            </div>
+            <div className="admin-color-swatch">
+              Brand 700
+              <span className="admin-color-preview" style={{ background: config.theme.brand700 }} />
+            </div>
           </div>
 
           <div className="divider" />

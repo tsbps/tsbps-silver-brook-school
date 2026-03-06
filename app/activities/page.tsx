@@ -26,7 +26,7 @@ export default async function ActivitiesPage() {
         ctaLabel="View Calendar"
         ctaHref="/calendar"
       />
-      <section className="section">
+      <section className="section section-pattern">
         <div className="container grid grid-3">
           {clubs.map((club) => (
             <div className="card" key={club}>

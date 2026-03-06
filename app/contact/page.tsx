@@ -14,7 +14,7 @@ export default async function ContactPage() {
         eyebrow="We are here to help"
         description="Reach out for admissions, transport, or general enquiries."
       />
-      <section className="section">
+      <section className="section section-pattern">
         <div className="container grid grid-2">
           <div className="card">
             <h3>School Office</h3>

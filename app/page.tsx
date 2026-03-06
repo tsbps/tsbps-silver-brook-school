@@ -108,7 +108,7 @@ export default async function Home() {
             <p className="eyebrow">{config.schoolName.toUpperCase()}</p>
             <h1>{config.tagline}</h1>
             <p className="home-subline">Where Knowledge Sparks Confidence</p>
-            <p>{config.address}</p>
+            <p className="home-address">{config.address}</p>
             <div className="home-badges">
               <span className="home-badge">Admissions Open - 2026-27</span>
               <span className="home-badge">Grade I to VII</span>
@@ -143,11 +143,16 @@ export default async function Home() {
                 <span>Foundation</span>
               </div>
             </div>
+            <div className="grid grid-3">
+              <img className="home-thumb" src="/images/ai-campus-1.svg" alt="Smart classroom" />
+              <img className="home-thumb" src="/images/ai-campus-2.svg" alt="STEM learning lab" />
+              <img className="home-thumb" src="/images/ai-campus-3.svg" alt="Activity space" />
+            </div>
           </aside>
         </div>
       </section>
 
-      <section className="section accent home-section">
+      <section className="section accent home-section section-pattern">
         <div className="container">
           <h2>Special Features</h2>
           <div className="home-cards-grid">
@@ -162,7 +167,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section home-section">
+      <section className="section home-section section-pattern">
         <div className="container">
           <h2>Key Benefits</h2>
           <div className="home-benefits-grid">
@@ -198,7 +203,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section accent home-section">
+      <section className="section accent home-section section-pattern">
         <div className="container">
           <h2>THE SILVER BROOK PUBLIC SCHOOL</h2>
           <article className="card home-cbse-card home-theme-card">
@@ -258,7 +263,13 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section accent home-section">
+      <section className="section accent home-section section-pattern">
+        <div className="container">
+          <div className="home-group-head">
+            <h2>Student Life Highlights</h2>
+            <p>Sports, co-curricular programs, and student essentials in one place.</p>
+          </div>
+        </div>
         <div className="container home-final-grid">
           <article className="card home-list-card home-theme-card">
             <h3>Sports</h3>

@@ -16,7 +16,7 @@ export default async function AdmissionsPage() {
         ctaLabel="Fees & Scholarships"
         ctaHref="/fees"
       />
-      <section className="section">
+      <section className="section section-pattern">
         <div className="container grid grid-2">
           <div className="card">
             <h3>Admissions Process</h3>

@@ -24,16 +24,16 @@ body {
   z-index: 3000;
   display: grid;
   place-items: center;
-  background: rgba(251, 250, 246, 0.98);
+  background: rgba(247, 249, 255, 0.96);
   pointer-events: none;
-  animation: splash-fade 1.4s ease forwards;
+  animation: splash-fade 0.9s ease forwards;
 }
 
 .splash-screen img {
-  width: 110px;
-  height: 110px;
+  width: 156px;
+  height: 156px;
   object-fit: contain;
-  animation: splash-pop 1.2s ease forwards;
+  animation: splash-pop 0.8s cubic-bezier(0.2, 0.65, 0.2, 1) forwards;
 }
 
 @keyframes splash-pop {
@@ -134,13 +134,16 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   padding: 12px 20px;
   border-radius: 999px;
   background: var(--brand-600);
   color: white;
   font-weight: 600;
   border: 1px solid transparent;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.25s ease;
   box-shadow: 0 12px 30px rgba(53, 76, 64, 0.22);
   margin: 0;
 }
@@ -152,8 +155,29 @@ p {
   box-shadow: none;
 }
 
-.button:hover {
-  transform: translateY(-2px);
+.button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.05));
+  transform: translateX(-120%);
+  transition: transform 0.45s ease;
+  z-index: -1;
+}
+
+.button:hover,
+.button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(35, 69, 166, 0.28);
+}
+
+.button:hover::before,
+.button:focus-visible::before {
+  transform: translateX(0%);
+}
+
+.button:active {
+  transform: translateY(0);
 }
 
 .badge {
@@ -454,6 +478,27 @@ footer .footer-contact .divider {
   margin-bottom: 30px;
 }
 
+.section-pattern {
+  position: relative;
+  isolation: isolate;
+}
+
+.section-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--brand-400) 24%, white) 0 2px, transparent 2px),
+    radial-gradient(circle at 72% 38%, color-mix(in srgb, var(--brand-600) 18%, white) 0 2px, transparent 2px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.75));
+  background-size:
+    48px 48px,
+    54px 54px,
+    100% 100%;
+  opacity: 0.22;
+}
+
 .accent {
   background: color-mix(in srgb, var(--brand-400) 12%, white);
 }
@@ -640,6 +685,7 @@ code {
   min-height: 2px;
   background: #1a2437;
   border-radius: 999px;
+  flex: 0 0 2px;
 }
 
 .mobile-menu {
@@ -812,7 +858,8 @@ code {
 }
 
 .home-hero {
-  padding-top: 84px;
+  padding-top: 34px;
+  padding-bottom: 56px;
 }
 
 .home-hero-grid {
@@ -894,6 +941,14 @@ code {
 .home-stats span {
   font-size: 0.82rem;
   color: var(--ink-600);
+}
+
+.home-thumb {
+  height: 72px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(47, 91, 215, 0.14);
 }
 
 .home-cards-grid {
@@ -987,6 +1042,12 @@ code {
   gap: 14px;
 }
 
+.home-group-head {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
 .home-list-card {
   display: grid;
   gap: 10px;
@@ -1002,7 +1063,7 @@ code {
   }
 
   .home-benefits-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .home-exams-grid,
@@ -1012,8 +1073,12 @@ code {
 }
 
 @media (max-width: 700px) {
+  .section {
+    padding: 40px 0;
+  }
+
   .home-cards-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 10px;
   }
 
@@ -1026,16 +1091,24 @@ code {
   }
 
   .home-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
   }
 
   .home-subline {
     font-size: 1rem;
   }
 
+  .home-address {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .home-feature-card p {
-    font-size: 0.84rem;
-    line-height: 1.35;
+    font-size: 0.9rem;
+    line-height: 1.45;
   }
 
   .home-feature-card h3 {
@@ -1142,6 +1215,44 @@ code {
   font-size: 0.92rem;
 }
 
+.admin-theme-field {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 8px;
+}
+
+.admin-theme-field input[type="color"] {
+  width: 52px;
+  min-width: 52px;
+  padding: 2px;
+  border-radius: 10px;
+}
+
+.admin-color-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.admin-color-swatch {
+  border-radius: 10px;
+  border: 1px solid rgba(30, 45, 78, 0.16);
+  padding: 8px;
+  color: #10203a;
+  background: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: grid;
+  gap: 6px;
+}
+
+.admin-color-preview {
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(14, 23, 37, 0.18);
+}
+
 .admin-actions {
   margin-top: 20px;
   display: flex;
@@ -1173,5 +1284,13 @@ code {
 @media (max-width: 720px) {
   .admin-panel-head {
     flex-direction: column;
+  }
+
+  .admin-panel {
+    padding: 18px;
+  }
+
+  .admin-color-strip {
+    grid-template-columns: 1fr 1fr;
   }
 }

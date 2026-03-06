@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { resetSiteConfigToDefault } from "@/lib/site-config";
 
@@ -9,5 +10,6 @@ export async function POST() {
   }
 
   const config = await resetSiteConfigToDefault();
+  revalidatePath("/", "layout");
   return NextResponse.json({ ok: true, config });
 }

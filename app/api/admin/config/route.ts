@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getSiteConfig, updateSiteConfig } from "@/lib/site-config";
 import type { SiteConfig } from "@/lib/site-config-schema";
@@ -22,6 +23,7 @@ export async function PUT(request: Request) {
   try {
     const payload = (await request.json()) as Partial<SiteConfig>;
     const config = await updateSiteConfig(payload);
+    revalidatePath("/", "layout");
     return NextResponse.json({ ok: true, config });
   } catch {
     return NextResponse.json({ ok: false, message: "Invalid payload" }, { status: 400 });

@@ -4,6 +4,7 @@ import "../styles/theme.css";
 import "./globals.css";
 import { getSiteConfig } from "@/lib/site-config";
 import { SiteConfigProvider } from "@/components/SiteConfigProvider";
+import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
   title: "The Silver Brook Public School",
@@ -19,6 +20,8 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
 };
+
+export const dynamic = "force-dynamic";
 
 export default function RootLayout({
   children,
@@ -51,9 +54,7 @@ async function RootWithConfig({
     <html lang="en">
       <body style={themeVars as CSSProperties}>
         <SiteConfigProvider value={config}>
-          <div className="splash-screen" aria-hidden="true">
-            <img src={config.logoPath || "/logo.png"} alt="" />
-          </div>
+          <SplashScreen logoPath={config.logoPath || "/logo.png"} />
           <div className="site-shell">{children}</div>
         </SiteConfigProvider>
       </body>
