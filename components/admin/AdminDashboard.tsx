@@ -8,6 +8,7 @@ import {
   type ManagedPageKey,
   type SiteConfig,
   type SiteEvent,
+  type SitePost,
 } from "@/lib/site-config-schema";
 
 const PAGE_LABELS: Record<ManagedPageKey, string> = {
@@ -17,6 +18,7 @@ const PAGE_LABELS: Record<ManagedPageKey, string> = {
   admissions: "Admissions",
   campus: "Campus",
   activities: "Activities",
+  blog: "Blog",
   news: "News",
   contact: "Contact",
   calendar: "Calendar",
@@ -55,11 +57,40 @@ function normalizeEventInput(value: string): SiteEvent[] {
     .filter((item) => item.date && item.title);
 }
 
+function normalizePostInput(value: string, type: "news" | "blog"): SitePost[] {
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => {
+      const parts = line.split("|").map((part) => part.trim());
+      return {
+        id: `${type}-${index + 1}`,
+        date: parts[0] || "",
+        title: parts[1] || "",
+        summary: parts[2] || "",
+        content: parts[3] || parts[2] || "",
+        published: true,
+      };
+    })
+    .filter((item) => item.date && item.title && item.summary);
+}
+
 export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
   const router = useRouter();
   const [config, setConfig] = useState<SiteConfig>(initialConfig);
   const [eventsRawInput, setEventsRawInput] = useState(
     initialConfig.events.map((event) => `${event.date} | ${event.title}`).join("\n")
+  );
+  const [newsRawInput, setNewsRawInput] = useState(
+    initialConfig.newsPosts
+      .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+      .join("\n")
+  );
+  const [blogRawInput, setBlogRawInput] = useState(
+    initialConfig.blogPosts
+      .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+      .join("\n")
   );
   const [logoUploadFile, setLogoUploadFile] = useState<File | null>(null);
   const [status, setStatus] = useState<string>("");
@@ -67,6 +98,8 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const eventsPreview = useMemo(() => normalizeEventInput(eventsRawInput), [eventsRawInput]);
+  const newsPreview = useMemo(() => normalizePostInput(newsRawInput, "news"), [newsRawInput]);
+  const blogPreview = useMemo(() => normalizePostInput(blogRawInput, "blog"), [blogRawInput]);
 
   async function saveConfig(nextConfig: SiteConfig) {
     setSaving(true);
@@ -75,6 +108,8 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
     const payload: SiteConfig = {
       ...nextConfig,
       events: eventsPreview,
+      newsPosts: newsPreview,
+      blogPosts: blogPreview,
     };
 
     try {
@@ -92,6 +127,16 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
 
       setConfig(result.config);
       setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
+      setNewsRawInput(
+        result.config.newsPosts
+          .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+          .join("\n")
+      );
+      setBlogRawInput(
+        result.config.blogPosts
+          .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+          .join("\n")
+      );
       setStatus("Saved successfully");
       router.refresh();
     } catch {
@@ -111,10 +156,20 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
         setStatus(result.message || "Rollback failed");
         return;
       }
-      setConfig(result.config);
-      setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
-      setStatus("Rolled back to baseline config");
-      router.refresh();
+    setConfig(result.config);
+    setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
+    setNewsRawInput(
+      result.config.newsPosts
+        .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+        .join("\n")
+    );
+    setBlogRawInput(
+      result.config.blogPosts
+        .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+        .join("\n")
+    );
+    setStatus("Rolled back to baseline config");
+    router.refresh();
     } catch {
       setStatus("Rollback failed due to network/server error");
     } finally {
@@ -423,6 +478,16 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
               onClick={() => {
                 setConfig(defaultSiteConfig);
                 setEventsRawInput(defaultSiteConfig.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
+                setNewsRawInput(
+                  defaultSiteConfig.newsPosts
+                    .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+                    .join("\n")
+                );
+                setBlogRawInput(
+                  defaultSiteConfig.blogPosts
+                    .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+                    .join("\n")
+                );
                 setStatus("Loaded defaults in form. Click Save Settings to apply.");
               }}
             >
@@ -433,6 +498,32 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
             </button>
             <span className="admin-status">{status}</span>
           </div>
+
+          <div className="divider" />
+          <h3>News Posts</h3>
+          <p className="admin-help">
+            One line: <code>Date | Title | Summary | Content</code>
+          </p>
+          <textarea
+            className="admin-events"
+            rows={7}
+            value={newsRawInput}
+            onChange={(event) => setNewsRawInput(event.target.value)}
+          />
+          <p className="admin-help">Valid news posts parsed: {newsPreview.length}</p>
+
+          <div className="divider" />
+          <h3>Blog Posts</h3>
+          <p className="admin-help">
+            One line: <code>Date | Title | Summary | Content</code>
+          </p>
+          <textarea
+            className="admin-events"
+            rows={7}
+            value={blogRawInput}
+            onChange={(event) => setBlogRawInput(event.target.value)}
+          />
+          <p className="admin-help">Valid blog posts parsed: {blogPreview.length}</p>
         </div>
       </div>
     </section>

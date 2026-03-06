@@ -6,12 +6,14 @@ import {
   type ManagedPageKey,
   type SiteConfig,
   type SiteEvent,
+  type SitePost,
 } from "@/lib/site-config-schema";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const CONFIG_PATH = path.join(DATA_DIR, "site-config.json");
 const KV_KEY = "site-config";
 const IS_VERCEL = process.env.VERCEL === "1";
+const FIREBASE_KEY = "siteConfig";
 
 function sanitizeEvent(input: Partial<SiteEvent>, index: number): SiteEvent {
   const date = (input.date ?? "").toString().trim().slice(0, 40);
@@ -20,6 +22,18 @@ function sanitizeEvent(input: Partial<SiteEvent>, index: number): SiteEvent {
     id: input.id?.toString().trim() || `event-${index + 1}`,
     date,
     title,
+    description: (input.description ?? "").toString().trim().slice(0, 240),
+  };
+}
+
+function sanitizePost(input: Partial<SitePost>, index: number, type: "news" | "blog"): SitePost {
+  return {
+    id: input.id?.toString().trim() || `${type}-${index + 1}`,
+    date: (input.date ?? "").toString().trim().slice(0, 40),
+    title: (input.title ?? "").toString().trim().slice(0, 160),
+    summary: (input.summary ?? "").toString().trim().slice(0, 260),
+    content: (input.content ?? "").toString().trim().slice(0, 5000),
+    published: Boolean(input.published ?? true),
   };
 }
 
@@ -39,6 +53,16 @@ function sanitizeConfig(input: Partial<SiteConfig>): SiteConfig {
     .map((item, index) => sanitizeEvent(item, index))
     .filter((item) => item.date && item.title);
 
+  const newsPostsInput = Array.isArray(input.newsPosts) ? input.newsPosts : defaultSiteConfig.newsPosts;
+  const newsPosts = newsPostsInput
+    .map((item, index) => sanitizePost(item, index, "news"))
+    .filter((item) => item.date && item.title && item.summary);
+
+  const blogPostsInput = Array.isArray(input.blogPosts) ? input.blogPosts : defaultSiteConfig.blogPosts;
+  const blogPosts = blogPostsInput
+    .map((item, index) => sanitizePost(item, index, "blog"))
+    .filter((item) => item.date && item.title && item.summary);
+
   return {
     schoolName: (input.schoolName ?? defaultSiteConfig.schoolName).toString().trim(),
     schoolNameShort: (input.schoolNameShort ?? defaultSiteConfig.schoolNameShort)
@@ -51,6 +75,8 @@ function sanitizeConfig(input: Partial<SiteConfig>): SiteConfig {
     address: (input.address ?? defaultSiteConfig.address).toString().trim(),
     hiddenPages,
     events: events.length > 0 ? events : defaultSiteConfig.events,
+    newsPosts: newsPosts.length > 0 ? newsPosts : defaultSiteConfig.newsPosts,
+    blogPosts: blogPosts.length > 0 ? blogPosts : defaultSiteConfig.blogPosts,
     theme: {
       paper: sanitizeHexColor(input.theme?.paper ?? defaultSiteConfig.theme.paper, defaultSiteConfig.theme.paper),
       brand400: sanitizeHexColor(
@@ -81,6 +107,10 @@ async function ensureConfigFile() {
 
 function hasKvConfig() {
   return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+function hasFirebaseConfig() {
+  return Boolean(process.env.FIREBASE_DB_URL && process.env.FIREBASE_DB_SECRET);
 }
 
 async function kvFetch(pathname: string) {
@@ -118,7 +148,35 @@ async function writeConfigToKv(config: SiteConfig) {
   await kvFetch(`/set/${encodeURIComponent(KV_KEY)}/${payload}`);
 }
 
+async function readConfigFromFirebase(): Promise<SiteConfig | null> {
+  if (!hasFirebaseConfig()) return null;
+  const base = process.env.FIREBASE_DB_URL as string;
+  const secret = process.env.FIREBASE_DB_SECRET as string;
+
+  const response = await fetch(`${base.replace(/\/$/, "")}/${FIREBASE_KEY}.json?auth=${secret}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
+  const payload = (await response.json()) as Partial<SiteConfig> | null;
+  if (!payload) return null;
+  return sanitizeConfig(payload);
+}
+
+async function writeConfigToFirebase(config: SiteConfig) {
+  const base = process.env.FIREBASE_DB_URL as string;
+  const secret = process.env.FIREBASE_DB_SECRET as string;
+  const response = await fetch(`${base.replace(/\/$/, "")}/${FIREBASE_KEY}.json?auth=${secret}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(config),
+  });
+  if (!response.ok) throw new Error(`Firebase write failed: ${response.status}`);
+}
+
 export async function getSiteConfig(): Promise<SiteConfig> {
+  const firebaseConfig = await readConfigFromFirebase().catch(() => null);
+  if (firebaseConfig) return firebaseConfig;
+
   const kvConfig = await readConfigFromKv();
   if (kvConfig) return kvConfig;
   if (IS_VERCEL) return defaultSiteConfig;
@@ -135,10 +193,14 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 
 export async function saveSiteConfig(nextConfig: Partial<SiteConfig>): Promise<SiteConfig> {
   const merged = sanitizeConfig(nextConfig);
-  if (hasKvConfig()) {
+  if (hasFirebaseConfig()) {
+    await writeConfigToFirebase(merged);
+  } else if (hasKvConfig()) {
     await writeConfigToKv(merged);
   } else if (IS_VERCEL) {
-    throw new Error("KV is not configured. Set KV_REST_API_URL and KV_REST_API_TOKEN in Vercel.");
+    throw new Error(
+      "No dynamic storage configured. Set Firebase (FIREBASE_DB_URL, FIREBASE_DB_SECRET) or KV."
+    );
   } else {
     await ensureConfigFile();
     await fs.writeFile(CONFIG_PATH, JSON.stringify(merged, null, 2), "utf8");

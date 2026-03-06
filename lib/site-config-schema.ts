@@ -17,12 +17,23 @@ export type ManagedPageKey =
   | "policies"
   | "hostel"
   | "careers"
-  | "achievements";
+  | "achievements"
+  | "blog";
 
 export interface SiteEvent {
   id: string;
   date: string;
   title: string;
+  description?: string;
+}
+
+export interface SitePost {
+  id: string;
+  date: string;
+  title: string;
+  summary: string;
+  content: string;
+  published: boolean;
 }
 
 export interface SiteConfig {
@@ -35,6 +46,8 @@ export interface SiteConfig {
   address: string;
   hiddenPages: ManagedPageKey[];
   events: SiteEvent[];
+  newsPosts: SitePost[];
+  blogPosts: SitePost[];
   theme: {
     paper: string;
     brand400: string;
@@ -63,6 +76,7 @@ export const ALL_MANAGED_PAGES: ManagedPageKey[] = [
   "hostel",
   "careers",
   "achievements",
+  "blog",
 ];
 
 export const defaultSiteConfig: SiteConfig = {
@@ -76,10 +90,52 @@ export const defaultSiteConfig: SiteConfig = {
     "Pillaiyar Kovil Street, Near Astalakshmi Temple, Karatoor, Gobichettipalayam, Erode District - 638476",
   hiddenPages: [],
   events: [
-    { id: "event-1", date: "Mar 05", title: "Annual Sports Day" },
-    { id: "event-2", date: "Mar 18", title: "Parent-Teacher Meetings" },
-    { id: "event-3", date: "Apr 02", title: "Science Expo" },
-    { id: "event-4", date: "Apr 20", title: "Summer Break Begins" },
+    {
+      id: "event-1",
+      date: "Mar 05",
+      title: "Annual Sports Day",
+      description: "Inter-house athletics and team games.",
+    },
+    {
+      id: "event-2",
+      date: "Mar 18",
+      title: "Parent-Teacher Meetings",
+      description: "Academic review and goal setting discussions.",
+    },
+    {
+      id: "event-3",
+      date: "Apr 02",
+      title: "Science Expo",
+      description: "Student-led innovation and project showcase.",
+    },
+    {
+      id: "event-4",
+      date: "Apr 20",
+      title: "Summer Break Begins",
+      description: "End of term closing and holiday briefing.",
+    },
+  ],
+  newsPosts: [
+    {
+      id: "news-1",
+      date: "March 2026",
+      title: "Admissions Open for 2026-27",
+      summary: "Admissions are now open for Grades I to VII.",
+      content:
+        "Admissions are now open for Grades I to VII for academic year 2026-27. Families can contact the office to schedule a campus visit.",
+      published: true,
+    },
+  ],
+  blogPosts: [
+    {
+      id: "blog-1",
+      date: "March 2026",
+      title: "How We Build Confidence in Early Learners",
+      summary: "A look at our classroom approach to confidence and leadership.",
+      content:
+        "At The Silver Brook Public School, we combine structured learning, activity-based teaching, and communication practice to help children become confident, curious learners.",
+      published: true,
+    },
   ],
   theme: {
     paper: "#fbfaf6",

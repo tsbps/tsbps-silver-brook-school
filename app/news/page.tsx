@@ -7,7 +7,7 @@ import { enforcePageVisibility } from "@/lib/page-visibility";
 export default async function NewsPage() {
   await enforcePageVisibility("news");
   const config = await getSiteConfig();
-  const newsItems = config.events;
+  const newsItems = config.newsPosts.filter((item) => item.published);
 
   return (
     <div>
@@ -20,10 +20,10 @@ export default async function NewsPage() {
       <section className="section">
         <div className="container grid grid-2">
           {newsItems.map((item) => (
-            <div className="card" key={item.title}>
+            <div className="card" key={item.id}>
               <span className="tag">{item.date}</span>
               <h3>{item.title}</h3>
-              <p>Follow our updates or contact the school office for details.</p>
+              <p>{item.summary}</p>
             </div>
           ))}
         </div>

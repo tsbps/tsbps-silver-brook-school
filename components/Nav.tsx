@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/admissions", label: "Admissions", pageKey: "admissions" },
   { href: "/campus", label: "Campus", pageKey: "campus" },
   { href: "/activities", label: "Activities", pageKey: "activities" },
+  { href: "/blog", label: "Blog", pageKey: "blog" },
   { href: "/news", label: "News", pageKey: "news" },
   { href: "/contact", label: "Contact", pageKey: "contact" },
 ] as const satisfies ReadonlyArray<{ href: string; label: string; pageKey: ManagedPageKey }>;

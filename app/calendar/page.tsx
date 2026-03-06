@@ -23,6 +23,7 @@ export default async function CalendarPage() {
             <div className="card" key={event.title}>
               <h3>{event.date}</h3>
               <p>{event.title}</p>
+              <p>{event.description}</p>
             </div>
           ))}
         </div>
