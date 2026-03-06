@@ -170,6 +170,10 @@ function sanitizeConfig(input: Partial<SiteConfig>): SiteConfig {
         input.theme?.heroHighlight ?? defaultSiteConfig.theme.heroHighlight,
         defaultSiteConfig.theme.heroHighlight
       ),
+      footerButton: sanitizeHexColor(
+        input.theme?.footerButton ?? defaultSiteConfig.theme.footerButton,
+        defaultSiteConfig.theme.footerButton
+      ),
     },
   };
 }

@@ -25,6 +25,7 @@
   --glare-speed: 24s;
   --glare-size: 420px;
   --hero-highlight: #dbe6ff;
+  --footer-button: #2f5bd7;
 
   --sand-200: #efe1c9;
   --sun-300: #f2c06c;
@@ -48,4 +49,5 @@
   --glare-speed: 24s;
   --glare-size: 420px;
   --hero-highlight: #d2dff6;
+  --footer-button: #3f5b8b;
 }

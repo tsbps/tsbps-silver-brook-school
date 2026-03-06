@@ -416,15 +416,15 @@ footer .button.secondary:focus-visible {
 }
 
 .footer-contact-button {
-  border-color: color-mix(in srgb, var(--brand-400) 72%, #ffffff);
+  border-color: color-mix(in srgb, var(--footer-button) 72%, #ffffff);
+  background: color-mix(in srgb, var(--footer-button) 84%, #0f1111);
   color: #ffffff;
-  background: transparent;
 }
 
 .footer-contact-button:hover,
 .footer-contact-button:focus-visible {
-  background: color-mix(in srgb, var(--brand-600) 82%, #ffffff);
-  border-color: color-mix(in srgb, var(--brand-400) 56%, #ffffff);
+  background: color-mix(in srgb, var(--footer-button) 72%, #ffffff);
+  border-color: color-mix(in srgb, var(--footer-button) 58%, #ffffff);
   color: #ffffff;
 }
 
@@ -1174,15 +1174,6 @@ code {
   text-shadow: 0 0 0 rgba(0, 0, 0, 0.01);
 }
 
-.home-tagline-highlight {
-  width: fit-content;
-  max-width: 100%;
-  padding: 8px 14px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--hero-highlight) 86%, white);
-  border: 1px solid color-mix(in srgb, var(--brand-400) 32%, rgba(47, 91, 215, 0.16));
-}
-
 .home-vision-line {
   font-weight: 400;
   color: var(--ink-600);
@@ -1357,11 +1348,12 @@ code {
   height: var(--glare-size);
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--glare-blue) 42%, transparent),
-    color-mix(in srgb, var(--glare-gold) 26%, transparent),
+    color-mix(in srgb, var(--glare-blue) 22%, transparent),
+    color-mix(in srgb, var(--glare-gold) 14%, transparent),
     transparent 72%
   );
-  filter: blur(var(--glare-blur));
+  opacity: 0.52;
+  filter: blur(calc(var(--glare-blur) + 12px));
   animation: card-glare var(--glare-speed) linear infinite;
   pointer-events: none;
 }
@@ -1380,10 +1372,10 @@ code {
 
 @keyframes card-glare {
   0% {
-    transform: translate(-4%, -8%) rotate(0deg);
+    transform: translate(-8%, -10%) rotate(0deg);
   }
   100% {
-    transform: translate(85%, 42%) rotate(360deg);
+    transform: translate(42%, 24%) rotate(360deg);
   }
 }
 
@@ -1990,7 +1982,7 @@ code {
   margin-bottom: 12px;
 }
 
-.admin-quick-nav a {
+.admin-quick-nav button {
   padding: 7px 11px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--highlight) 72%, rgba(47, 91, 215, 0.2));
@@ -1998,6 +1990,19 @@ code {
   font-size: 0.84rem;
   font-weight: 700;
   color: var(--ink-700);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-quick-nav button:hover {
+  border-color: color-mix(in srgb, var(--brand-400) 44%, rgba(47, 91, 215, 0.2));
+  background: color-mix(in srgb, var(--surface-soft) 74%, white);
+}
+
+.admin-quick-nav button.is-active {
+  background: color-mix(in srgb, var(--brand-600) 88%, white);
+  border-color: color-mix(in srgb, var(--brand-600) 60%, rgba(47, 91, 215, 0.2));
+  color: #ffffff;
 }
 
 .admin-section-head {

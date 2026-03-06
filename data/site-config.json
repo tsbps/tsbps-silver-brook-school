@@ -120,6 +120,7 @@
     "glareBlur": 24,
     "glareSpeed": 24,
     "glareSize": 420,
-    "heroHighlight": "#dbe6ff"
+    "heroHighlight": "#dbe6ff",
+    "footerButton": "#2f5bd7"
   }
 }

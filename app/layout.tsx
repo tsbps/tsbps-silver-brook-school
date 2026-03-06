@@ -57,6 +57,7 @@ async function RootWithConfig({
     "--glare-speed": `${config.theme.glareSpeed}s`,
     "--glare-size": `${config.theme.glareSize}px`,
     "--hero-highlight": config.theme.heroHighlight,
+    "--footer-button": config.theme.footerButton,
   };
 
   return (

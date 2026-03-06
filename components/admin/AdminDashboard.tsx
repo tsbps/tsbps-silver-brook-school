@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ALL_MANAGED_PAGES,
@@ -131,9 +131,45 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
   const [newsSnapshots, setNewsSnapshots] = useState<Record<string, SitePost>>({});
   const [blogSnapshots, setBlogSnapshots] = useState<Record<string, SitePost>>({});
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+  const sectionAnchors = [
+    { id: "admin-branding", label: "Branding" },
+    { id: "admin-theme", label: "Theme" },
+    { id: "admin-visibility", label: "Visibility" },
+    { id: "admin-events", label: "Events" },
+    { id: "admin-news", label: "News" },
+    { id: "admin-blog", label: "Blog" },
+  ] as const;
+  const [activeSection, setActiveSection] = useState<string>("admin-branding");
 
   const visiblePageSet = useMemo(() => new Set(config.visiblePages), [config.visiblePages]);
   const menuPageSet = useMemo(() => new Set(config.menuPages), [config.menuPages]);
+
+  useEffect(() => {
+    const targets = sectionAnchors
+      .map((item) => document.getElementById(item.id))
+      .filter(Boolean) as HTMLElement[];
+    if (targets.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]?.target?.id) setActiveSection(visible[0].target.id);
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: [0.1, 0.3, 0.6] }
+    );
+
+    for (const element of targets) observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveSection(id);
+  };
   const themeColorFields: Array<{
     key:
       | "paper"
@@ -144,6 +180,7 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
       | "surfaceSoft"
       | "highlight"
       | "heroHighlight"
+      | "footerButton"
       | "glareBlue"
       | "glareGold";
     label: string;
@@ -160,6 +197,11 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
       key: "heroHighlight",
       label: "Hero Highlight Background Color",
       description: "Background behind 'Learning is the Key to Leadership'.",
+    },
+    {
+      key: "footerButton",
+      label: "Footer Contact Button Color",
+      description: "Background and border tone for the footer Contact Us button.",
     },
     { key: "glareBlue", label: "Gradient Color 1", description: "Primary color used in moving gradient." },
     { key: "glareGold", label: "Gradient Color 2", description: "Secondary color used in moving gradient." },
@@ -486,12 +528,16 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
           </div>
 
           <div className="admin-quick-nav">
-            <a href="#admin-branding">Branding</a>
-            <a href="#admin-theme">Theme</a>
-            <a href="#admin-visibility">Visibility</a>
-            <a href="#admin-events">Events</a>
-            <a href="#admin-news">News</a>
-            <a href="#admin-blog">Blog</a>
+            {sectionAnchors.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                className={activeSection === item.id ? "is-active" : ""}
+                onClick={() => scrollToSection(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
 
           <div className="admin-sections">
@@ -656,6 +702,10 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
                 <div className="admin-color-swatch">
                   Hero Highlight
                   <span className="admin-color-preview" style={{ background: config.theme.heroHighlight }} />
+                </div>
+                <div className="admin-color-swatch">
+                  Footer Button
+                  <span className="admin-color-preview" style={{ background: config.theme.footerButton }} />
                 </div>
               </div>
               <div className="admin-inline-actions">

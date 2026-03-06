@@ -74,6 +74,7 @@ export interface SiteConfig {
     glareSpeed: number;
     glareSize: number;
     heroHighlight: string;
+    footerButton: string;
   };
 }
 
@@ -196,5 +197,6 @@ export const defaultSiteConfig: SiteConfig = {
     glareSpeed: 24,
     glareSize: 420,
     heroHighlight: "#dbe6ff",
+    footerButton: "#2f5bd7",
   },
 };
