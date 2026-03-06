@@ -25,8 +25,18 @@ function formatPhoneForHref(phone: string) {
 }
 
 function splitHeaderName(name: string) {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length <= 2) {
+  const cleaned = name.trim().replace(/\s+/g, " ");
+  const words = cleaned.split(" ").filter(Boolean);
+
+  if (/public school/i.test(cleaned)) {
+    const lineOne = cleaned.replace(/public school/i, "").trim();
+    return {
+      lineOne: lineOne || "The Silver Brook",
+      lineTwo: "Public School",
+    };
+  }
+
+  if (words.length <= 3) {
     return {
       lineOne: words.join(" ") || "The Silver Brook",
       lineTwo: "Public School",

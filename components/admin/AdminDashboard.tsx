@@ -468,6 +468,32 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
           />
           <p className="admin-help">Valid events parsed: {eventsPreview.length}</p>
 
+          <div className="divider" />
+          <h3>News Posts</h3>
+          <p className="admin-help">
+            One line: <code>Date | Title | Summary | Content</code>
+          </p>
+          <textarea
+            className="admin-events"
+            rows={7}
+            value={newsRawInput}
+            onChange={(event) => setNewsRawInput(event.target.value)}
+          />
+          <p className="admin-help">Valid news posts parsed: {newsPreview.length}</p>
+
+          <div className="divider" />
+          <h3>Blog Posts</h3>
+          <p className="admin-help">
+            One line: <code>Date | Title | Summary | Content</code>
+          </p>
+          <textarea
+            className="admin-events"
+            rows={7}
+            value={blogRawInput}
+            onChange={(event) => setBlogRawInput(event.target.value)}
+          />
+          <p className="admin-help">Valid blog posts parsed: {blogPreview.length}</p>
+
           <div className="admin-actions">
             <button type="button" className="button" disabled={saving} onClick={() => saveConfig(config)}>
               {saving ? "Saving..." : "Save Settings"}
@@ -498,32 +524,6 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
             </button>
             <span className="admin-status">{status}</span>
           </div>
-
-          <div className="divider" />
-          <h3>News Posts</h3>
-          <p className="admin-help">
-            One line: <code>Date | Title | Summary | Content</code>
-          </p>
-          <textarea
-            className="admin-events"
-            rows={7}
-            value={newsRawInput}
-            onChange={(event) => setNewsRawInput(event.target.value)}
-          />
-          <p className="admin-help">Valid news posts parsed: {newsPreview.length}</p>
-
-          <div className="divider" />
-          <h3>Blog Posts</h3>
-          <p className="admin-help">
-            One line: <code>Date | Title | Summary | Content</code>
-          </p>
-          <textarea
-            className="admin-events"
-            rows={7}
-            value={blogRawInput}
-            onChange={(event) => setBlogRawInput(event.target.value)}
-          />
-          <p className="admin-help">Valid blog posts parsed: {blogPreview.length}</p>
         </div>
       </div>
     </section>
