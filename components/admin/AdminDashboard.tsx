@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ALL_MANAGED_PAGES,
@@ -44,62 +44,101 @@ function normalizeEventInput(value: string): SiteEvent[] {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line, index) => {
-      const pipeParts = line.split("|");
-      const dashParts = line.split(" - ");
-      const parts = pipeParts.length > 1 ? pipeParts : dashParts;
-      const [date, ...titleParts] = parts;
+      const [date, title = "", description = ""] = line.split("|").map((item) => item.trim());
       return {
         id: `event-${index + 1}`,
-        date: (date ?? "").trim(),
-        title: titleParts.join("|").trim(),
+        date,
+        title,
+        description,
       };
     })
     .filter((item) => item.date && item.title);
 }
 
-function normalizePostInput(value: string, type: "news" | "blog"): SitePost[] {
+function emptyPost(type: "news" | "blog"): SitePost {
+  const now = Date.now();
+  return {
+    id: `${type}-${now}`,
+    slug: `${type}-${now}`,
+    date: "",
+    title: "",
+    category: type === "news" ? "News" : "Blog",
+    image: "/images/ai-campus-1.svg",
+    summary: "",
+    content: "",
+    status: "draft",
+    scheduledAt: "",
+  };
+}
+
+function slugify(value: string) {
   return value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line, index) => {
-      const parts = line.split("|").map((part) => part.trim());
-      return {
-        id: `${type}-${index + 1}`,
-        date: parts[0] || "",
-        title: parts[1] || "",
-        summary: parts[2] || "",
-        content: parts[3] || parts[2] || "",
-        published: true,
-      };
-    })
-    .filter((item) => item.date && item.title && item.summary);
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
   const router = useRouter();
   const [config, setConfig] = useState<SiteConfig>(initialConfig);
   const [eventsRawInput, setEventsRawInput] = useState(
-    initialConfig.events.map((event) => `${event.date} | ${event.title}`).join("\n")
-  );
-  const [newsRawInput, setNewsRawInput] = useState(
-    initialConfig.newsPosts
-      .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
-      .join("\n")
-  );
-  const [blogRawInput, setBlogRawInput] = useState(
-    initialConfig.blogPosts
-      .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+    initialConfig.events
+      .map((event) => `${event.date} | ${event.title} | ${event.description ?? ""}`)
       .join("\n")
   );
   const [logoUploadFile, setLogoUploadFile] = useState<File | null>(null);
   const [status, setStatus] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
   const eventsPreview = useMemo(() => normalizeEventInput(eventsRawInput), [eventsRawInput]);
-  const newsPreview = useMemo(() => normalizePostInput(newsRawInput, "news"), [newsRawInput]);
-  const blogPreview = useMemo(() => normalizePostInput(blogRawInput, "blog"), [blogRawInput]);
+
+  const updatePost = (type: "newsPosts" | "blogPosts", id: string, patch: Partial<SitePost>) => {
+    setConfig((prev) => ({
+      ...prev,
+      [type]: prev[type].map((post) => {
+        if (post.id !== id) return post;
+        const next = { ...post, ...patch };
+        if (patch.title && (!post.slug || post.slug.startsWith(type === "newsPosts" ? "news-" : "blog-"))) {
+          next.slug = slugify(patch.title);
+        }
+        return next;
+      }),
+    }));
+  };
+
+  const removePost = (type: "newsPosts" | "blogPosts", id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      [type]: prev[type].filter((post) => post.id !== id),
+    }));
+  };
+
+  const addPost = (type: "newsPosts" | "blogPosts") => {
+    const empty = emptyPost(type === "newsPosts" ? "news" : "blog");
+    setConfig((prev) => ({
+      ...prev,
+      [type]: [empty, ...prev[type]],
+    }));
+  };
+
+  const applyFormat = (postId: string, type: "bold" | "italic" | "line") => {
+    const target = textareaRefs.current[postId];
+    if (!target) return;
+    const start = target.selectionStart ?? 0;
+    const end = target.selectionEnd ?? start;
+    const value = target.value;
+    const selected = value.slice(start, end);
+    let insertion = selected;
+    if (type === "bold") insertion = `**${selected || "bold text"}**`;
+    if (type === "italic") insertion = `*${selected || "italic text"}*`;
+    if (type === "line") insertion = `\n- ${selected || "point"}`;
+    const next = value.slice(0, start) + insertion + value.slice(end);
+    target.value = next;
+    target.dispatchEvent(new Event("input", { bubbles: true }));
+  };
 
   async function saveConfig(nextConfig: SiteConfig) {
     setSaving(true);
@@ -108,8 +147,6 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
     const payload: SiteConfig = {
       ...nextConfig,
       events: eventsPreview,
-      newsPosts: newsPreview,
-      blogPosts: blogPreview,
     };
 
     try {
@@ -126,15 +163,9 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
       }
 
       setConfig(result.config);
-      setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
-      setNewsRawInput(
-        result.config.newsPosts
-          .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
-          .join("\n")
-      );
-      setBlogRawInput(
-        result.config.blogPosts
-          .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+      setEventsRawInput(
+        result.config.events
+          .map((event) => `${event.date} | ${event.title} | ${event.description ?? ""}`)
           .join("\n")
       );
       setStatus("Saved successfully");
@@ -156,20 +187,14 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
         setStatus(result.message || "Rollback failed");
         return;
       }
-    setConfig(result.config);
-    setEventsRawInput(result.config.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
-    setNewsRawInput(
-      result.config.newsPosts
-        .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
-        .join("\n")
-    );
-    setBlogRawInput(
-      result.config.blogPosts
-        .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
-        .join("\n")
-    );
-    setStatus("Rolled back to baseline config");
-    router.refresh();
+      setConfig(result.config);
+      setEventsRawInput(
+        result.config.events
+          .map((event) => `${event.date} | ${event.title} | ${event.description ?? ""}`)
+          .join("\n")
+      );
+      setStatus("Rolled back to baseline config");
+      router.refresh();
     } catch {
       setStatus("Rollback failed due to network/server error");
     } finally {
@@ -207,9 +232,7 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
       }
 
       setConfig((prev) => ({ ...prev, logoPath: result.logoPath as string }));
-      setStatus(
-        `Logo uploaded (${result.committedPath}). Click "Save Settings" to apply it to website config.`
-      );
+      setStatus(`Logo uploaded (${result.committedPath}). Click "Save Settings" to apply.`);
     } catch {
       setStatus("Logo upload failed due to network/server error");
     } finally {
@@ -230,13 +253,14 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
             <div>
               <p className="eyebrow">Control Center</p>
               <h1>Website Dashboard</h1>
-              <p>Manage branding, theme, page visibility, and events without code changes.</p>
+              <p>Manage branding, theme, events, news and blog content.</p>
             </div>
             <button type="button" className="button secondary" onClick={logout}>
               Logout
             </button>
           </div>
 
+          <h3>Branding & Contact</h3>
           <div className="admin-grid">
             <label>
               School Name
@@ -254,13 +278,10 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
             </label>
             <label>
               Tagline
-              <input
-                value={config.tagline}
-                onChange={(event) => setConfig({ ...config, tagline: event.target.value })}
-              />
+              <input value={config.tagline} onChange={(event) => setConfig({ ...config, tagline: event.target.value })} />
             </label>
             <label>
-              Logo Path (inside `public`)
+              Logo Path
               <input
                 value={config.logoPath}
                 onChange={(event) => setConfig({ ...config, logoPath: event.target.value })}
@@ -284,7 +305,7 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
               </button>
             </label>
             <label>
-              Phone (with country code)
+              Phone
               <input
                 value={config.contactPhone}
                 onChange={(event) => setConfig({ ...config, contactPhone: event.target.value })}
@@ -309,109 +330,45 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
           </label>
 
           <div className="divider" />
-
-          <h3>Theme Colors</h3>
+          <h3>Theme</h3>
           <div className="admin-grid">
-            <label>
-              Page Background
-              <div className="admin-theme-field">
-                <input
-                  type="color"
-                  value={config.theme.paper}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, paper: event.target.value },
-                    })
-                  }
-                />
-                <input
-                  value={config.theme.paper}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, paper: event.target.value },
-                    })
-                  }
-                  placeholder="#fbfaf6"
-                />
-              </div>
-            </label>
-            <label>
-              Brand 400
-              <div className="admin-theme-field">
-                <input
-                  type="color"
-                  value={config.theme.brand400}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, brand400: event.target.value },
-                    })
-                  }
-                />
-                <input
-                  value={config.theme.brand400}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, brand400: event.target.value },
-                    })
-                  }
-                  placeholder="#6f93f5"
-                />
-              </div>
-            </label>
-            <label>
-              Brand 600
-              <div className="admin-theme-field">
-                <input
-                  type="color"
-                  value={config.theme.brand600}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, brand600: event.target.value },
-                    })
-                  }
-                />
-                <input
-                  value={config.theme.brand600}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, brand600: event.target.value },
-                    })
-                  }
-                  placeholder="#2f5bd7"
-                />
-              </div>
-            </label>
-            <label>
-              Brand 700
-              <div className="admin-theme-field">
-                <input
-                  type="color"
-                  value={config.theme.brand700}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, brand700: event.target.value },
-                    })
-                  }
-                />
-                <input
-                  value={config.theme.brand700}
-                  onChange={(event) =>
-                    setConfig({
-                      ...config,
-                      theme: { ...config.theme, brand700: event.target.value },
-                    })
-                  }
-                  placeholder="#2345a6"
-                />
-              </div>
-            </label>
+            {[
+              { key: "paper", label: "Page Background" },
+              { key: "brand400", label: "Brand 400" },
+              { key: "brand600", label: "Brand 600" },
+              { key: "brand700", label: "Brand 700" },
+            ].map((item) => (
+              <label key={item.key}>
+                {item.label}
+                <div className="admin-theme-field">
+                  <input
+                    type="color"
+                    value={config.theme[item.key as keyof typeof config.theme]}
+                    onChange={(event) =>
+                      setConfig({
+                        ...config,
+                        theme: {
+                          ...config.theme,
+                          [item.key]: event.target.value,
+                        },
+                      })
+                    }
+                  />
+                  <input
+                    value={config.theme[item.key as keyof typeof config.theme]}
+                    onChange={(event) =>
+                      setConfig({
+                        ...config,
+                        theme: {
+                          ...config.theme,
+                          [item.key]: event.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </label>
+            ))}
           </div>
           <div className="admin-color-strip">
             <div className="admin-color-swatch">
@@ -433,7 +390,6 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
           </div>
 
           <div className="divider" />
-
           <h3>Page Visibility</h3>
           <p className="admin-help">Checked means hidden (returns 404 and removed from menu).</p>
           <div className="admin-check-grid">
@@ -455,44 +411,164 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
           </div>
 
           <div className="divider" />
-
-          <h3>News / Events</h3>
+          <h3>Events</h3>
           <p className="admin-help">
-            One line per event in this format: <code>Date | Event title</code>
+            One line: <code>Date | Event title | Short description</code>
           </p>
-          <textarea
-            className="admin-events"
-            rows={7}
-            value={eventsRawInput}
-            onChange={(event) => setEventsRawInput(event.target.value)}
-          />
+          <textarea className="admin-events" rows={8} value={eventsRawInput} onChange={(e) => setEventsRawInput(e.target.value)} />
           <p className="admin-help">Valid events parsed: {eventsPreview.length}</p>
 
           <div className="divider" />
-          <h3>News Posts</h3>
-          <p className="admin-help">
-            One line: <code>Date | Title | Summary | Content</code>
-          </p>
-          <textarea
-            className="admin-events"
-            rows={7}
-            value={newsRawInput}
-            onChange={(event) => setNewsRawInput(event.target.value)}
-          />
-          <p className="admin-help">Valid news posts parsed: {newsPreview.length}</p>
+          <div className="admin-section-head">
+            <h3>News Articles</h3>
+            <button type="button" className="button secondary" onClick={() => addPost("newsPosts")}>
+              Add News
+            </button>
+          </div>
+          <div className="admin-article-list">
+            {config.newsPosts.map((post) => (
+              <article className="admin-article-card" key={post.id}>
+                <div className="admin-article-actions">
+                  <button type="button" className="button secondary" onClick={() => removePost("newsPosts", post.id)}>
+                    Delete
+                  </button>
+                  <select
+                    value={post.status}
+                    onChange={(e) => updatePost("newsPosts", post.id, { status: e.target.value as SitePost["status"] })}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="scheduled">Scheduled</option>
+                  </select>
+                  {post.status === "scheduled" ? (
+                    <input
+                      type="datetime-local"
+                      value={post.scheduledAt || ""}
+                      onChange={(e) => updatePost("newsPosts", post.id, { scheduledAt: e.target.value })}
+                    />
+                  ) : null}
+                </div>
+                <div className="admin-grid">
+                  <label>
+                    Title
+                    <input value={post.title} placeholder="Article title" onChange={(e) => updatePost("newsPosts", post.id, { title: e.target.value })} />
+                  </label>
+                  <label>
+                    Slug
+                    <input value={post.slug} placeholder="article-slug" onChange={(e) => updatePost("newsPosts", post.id, { slug: slugify(e.target.value) })} />
+                  </label>
+                  <label>
+                    Date
+                    <input value={post.date} placeholder="March 2026" onChange={(e) => updatePost("newsPosts", post.id, { date: e.target.value })} />
+                  </label>
+                  <label>
+                    Category
+                    <input value={post.category} placeholder="Admissions" onChange={(e) => updatePost("newsPosts", post.id, { category: e.target.value })} />
+                  </label>
+                  <label>
+                    Image URL / Path
+                    <input value={post.image} placeholder="/images/ai-campus-1.svg" onChange={(e) => updatePost("newsPosts", post.id, { image: e.target.value })} />
+                  </label>
+                </div>
+                <label className="admin-field">
+                  Summary
+                  <textarea rows={2} value={post.summary} onChange={(e) => updatePost("newsPosts", post.id, { summary: e.target.value })} />
+                </label>
+                <div className="admin-rich-toolbar">
+                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "bold")}>Bold</button>
+                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "italic")}>Italic</button>
+                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "line")}>Bullet</button>
+                </div>
+                <label className="admin-field">
+                  Content
+                  <textarea
+                    rows={6}
+                    ref={(node) => {
+                      textareaRefs.current[post.id] = node;
+                    }}
+                    value={post.content}
+                    onChange={(e) => updatePost("newsPosts", post.id, { content: e.target.value })}
+                  />
+                </label>
+              </article>
+            ))}
+          </div>
 
           <div className="divider" />
-          <h3>Blog Posts</h3>
-          <p className="admin-help">
-            One line: <code>Date | Title | Summary | Content</code>
-          </p>
-          <textarea
-            className="admin-events"
-            rows={7}
-            value={blogRawInput}
-            onChange={(event) => setBlogRawInput(event.target.value)}
-          />
-          <p className="admin-help">Valid blog posts parsed: {blogPreview.length}</p>
+          <div className="admin-section-head">
+            <h3>Blog Articles</h3>
+            <button type="button" className="button secondary" onClick={() => addPost("blogPosts")}>
+              Add Blog
+            </button>
+          </div>
+          <div className="admin-article-list">
+            {config.blogPosts.map((post) => (
+              <article className="admin-article-card" key={post.id}>
+                <div className="admin-article-actions">
+                  <button type="button" className="button secondary" onClick={() => removePost("blogPosts", post.id)}>
+                    Delete
+                  </button>
+                  <select
+                    value={post.status}
+                    onChange={(e) => updatePost("blogPosts", post.id, { status: e.target.value as SitePost["status"] })}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="scheduled">Scheduled</option>
+                  </select>
+                  {post.status === "scheduled" ? (
+                    <input
+                      type="datetime-local"
+                      value={post.scheduledAt || ""}
+                      onChange={(e) => updatePost("blogPosts", post.id, { scheduledAt: e.target.value })}
+                    />
+                  ) : null}
+                </div>
+                <div className="admin-grid">
+                  <label>
+                    Title
+                    <input value={post.title} placeholder="Article title" onChange={(e) => updatePost("blogPosts", post.id, { title: e.target.value })} />
+                  </label>
+                  <label>
+                    Slug
+                    <input value={post.slug} placeholder="article-slug" onChange={(e) => updatePost("blogPosts", post.id, { slug: slugify(e.target.value) })} />
+                  </label>
+                  <label>
+                    Date
+                    <input value={post.date} placeholder="March 2026" onChange={(e) => updatePost("blogPosts", post.id, { date: e.target.value })} />
+                  </label>
+                  <label>
+                    Category
+                    <input value={post.category} placeholder="Learning" onChange={(e) => updatePost("blogPosts", post.id, { category: e.target.value })} />
+                  </label>
+                  <label>
+                    Image URL / Path
+                    <input value={post.image} placeholder="/images/ai-campus-1.svg" onChange={(e) => updatePost("blogPosts", post.id, { image: e.target.value })} />
+                  </label>
+                </div>
+                <label className="admin-field">
+                  Summary
+                  <textarea rows={2} value={post.summary} onChange={(e) => updatePost("blogPosts", post.id, { summary: e.target.value })} />
+                </label>
+                <div className="admin-rich-toolbar">
+                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "bold")}>Bold</button>
+                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "italic")}>Italic</button>
+                  <button type="button" className="button secondary" onClick={() => applyFormat(post.id, "line")}>Bullet</button>
+                </div>
+                <label className="admin-field">
+                  Content
+                  <textarea
+                    rows={6}
+                    ref={(node) => {
+                      textareaRefs.current[post.id] = node;
+                    }}
+                    value={post.content}
+                    onChange={(e) => updatePost("blogPosts", post.id, { content: e.target.value })}
+                  />
+                </label>
+              </article>
+            ))}
+          </div>
 
           <div className="admin-actions">
             <button type="button" className="button" disabled={saving} onClick={() => saveConfig(config)}>
@@ -503,15 +579,9 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
               className="button secondary"
               onClick={() => {
                 setConfig(defaultSiteConfig);
-                setEventsRawInput(defaultSiteConfig.events.map((event) => `${event.date} | ${event.title}`).join("\n"));
-                setNewsRawInput(
-                  defaultSiteConfig.newsPosts
-                    .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
-                    .join("\n")
-                );
-                setBlogRawInput(
-                  defaultSiteConfig.blogPosts
-                    .map((post) => `${post.date} | ${post.title} | ${post.summary} | ${post.content}`)
+                setEventsRawInput(
+                  defaultSiteConfig.events
+                    .map((event) => `${event.date} | ${event.title} | ${event.description ?? ""}`)
                     .join("\n")
                 );
                 setStatus("Loaded defaults in form. Click Save Settings to apply.");

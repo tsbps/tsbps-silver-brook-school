@@ -29,11 +29,15 @@ export interface SiteEvent {
 
 export interface SitePost {
   id: string;
+  slug: string;
   date: string;
   title: string;
+  category: string;
+  image: string;
   summary: string;
   content: string;
-  published: boolean;
+  status: "published" | "draft" | "scheduled";
+  scheduledAt?: string;
 }
 
 export interface SiteConfig {
@@ -118,23 +122,29 @@ export const defaultSiteConfig: SiteConfig = {
   newsPosts: [
     {
       id: "news-1",
+      slug: "admissions-open-2026-27",
       date: "March 2026",
       title: "Admissions Open for 2026-27",
+      category: "Admissions",
+      image: "/images/ai-campus-2.svg",
       summary: "Admissions are now open for Grades I to VII.",
       content:
         "Admissions are now open for Grades I to VII for academic year 2026-27. Families can contact the office to schedule a campus visit.",
-      published: true,
+      status: "published",
     },
   ],
   blogPosts: [
     {
       id: "blog-1",
+      slug: "confidence-in-early-learners",
       date: "March 2026",
       title: "How We Build Confidence in Early Learners",
+      category: "Learning",
+      image: "/images/ai-campus-3.svg",
       summary: "A look at our classroom approach to confidence and leadership.",
       content:
         "At The Silver Brook Public School, we combine structured learning, activity-based teaching, and communication practice to help children become confident, curious learners.",
-      published: true,
+      status: "published",
     },
   ],
   theme: {

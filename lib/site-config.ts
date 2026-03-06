@@ -27,13 +27,32 @@ function sanitizeEvent(input: Partial<SiteEvent>, index: number): SiteEvent {
 }
 
 function sanitizePost(input: Partial<SitePost>, index: number, type: "news" | "blog"): SitePost {
+  const title = (input.title ?? "").toString().trim().slice(0, 160);
+  const slugSeed = input.slug ?? title ?? `${type}-${index + 1}`;
+  const slugBase = slugSeed
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const statusCandidate = (input.status ?? "published").toString();
+  const status =
+    statusCandidate === "draft" || statusCandidate === "scheduled" || statusCandidate === "published"
+      ? statusCandidate
+      : "published";
+
   return {
     id: input.id?.toString().trim() || `${type}-${index + 1}`,
+    slug: slugBase || `${type}-${index + 1}`,
     date: (input.date ?? "").toString().trim().slice(0, 40),
-    title: (input.title ?? "").toString().trim().slice(0, 160),
+    title,
+    category: (input.category ?? (type === "news" ? "News" : "Blog")).toString().trim().slice(0, 40),
+    image: (input.image ?? "/images/ai-campus-1.svg").toString().trim().slice(0, 200),
     summary: (input.summary ?? "").toString().trim().slice(0, 260),
     content: (input.content ?? "").toString().trim().slice(0, 5000),
-    published: Boolean(input.published ?? true),
+    status,
+    scheduledAt: (input.scheduledAt ?? "").toString().trim().slice(0, 40),
   };
 }
 

@@ -3,11 +3,13 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { getSiteConfig } from "@/lib/site-config";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { isPostVisible, sortPostsDesc } from "@/lib/posts";
+import ArticleCarousel from "@/components/ArticleCarousel";
 
 export default async function NewsPage() {
   await enforcePageVisibility("news");
   const config = await getSiteConfig();
-  const newsItems = config.newsPosts.filter((item) => item.published);
+  const newsItems = sortPostsDesc(config.newsPosts.filter(isPostVisible));
 
   return (
     <div>
@@ -18,14 +20,8 @@ export default async function NewsPage() {
         description="Announcements and milestones as we prepare to open."
       />
       <section className="section">
-        <div className="container grid grid-2">
-          {newsItems.map((item) => (
-            <div className="card" key={item.id}>
-              <span className="tag">{item.date}</span>
-              <h3>{item.title}</h3>
-              <p>{item.summary}</p>
-            </div>
-          ))}
+        <div className="container">
+          <ArticleCarousel posts={newsItems} basePath="/news" />
         </div>
       </section>
       <Footer />
