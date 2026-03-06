@@ -51,6 +51,8 @@ async function RootWithConfig({
     "--surface": config.theme.surface,
     "--surface-soft": config.theme.surfaceSoft,
     "--highlight": config.theme.highlight,
+    "--glare-blue": config.theme.glareBlue,
+    "--glare-gold": config.theme.glareGold,
   };
 
   return (

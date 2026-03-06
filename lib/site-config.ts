@@ -149,6 +149,14 @@ function sanitizeConfig(input: Partial<SiteConfig>): SiteConfig {
         input.theme?.highlight ?? defaultSiteConfig.theme.highlight,
         defaultSiteConfig.theme.highlight
       ),
+      glareBlue: sanitizeHexColor(
+        input.theme?.glareBlue ?? defaultSiteConfig.theme.glareBlue,
+        defaultSiteConfig.theme.glareBlue
+      ),
+      glareGold: sanitizeHexColor(
+        input.theme?.glareGold ?? defaultSiteConfig.theme.glareGold,
+        defaultSiteConfig.theme.glareGold
+      ),
     },
   };
 }

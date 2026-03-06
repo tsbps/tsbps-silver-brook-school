@@ -68,6 +68,8 @@ export interface SiteConfig {
     surface: string;
     surfaceSoft: string;
     highlight: string;
+    glareBlue: string;
+    glareGold: string;
   };
 }
 
@@ -184,5 +186,7 @@ export const defaultSiteConfig: SiteConfig = {
     surface: "#ffffff",
     surfaceSoft: "#eef3ff",
     highlight: "#dbe6ff",
+    glareBlue: "#4976ec",
+    glareGold: "#d4a648",
   },
 };
