@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
+import { getSiteConfig } from "@/lib/site-config";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
 const specialFeatures = [
   {
@@ -87,7 +89,14 @@ const sports = ["Basketball", "Football", "Badminton", "Chess"];
 const activities = ["Robotics", "Skating", "Yoga", "Archery", "Horse Riding", "Western Dance"];
 const feeIncludes = ["3 Sets of Uniform", "School Bag", "Books and Notebooks", "Stationery Items"];
 
-export default function Home() {
+function formatPhoneForHref(phone: string) {
+  return phone.replace(/[^\d+]/g, "");
+}
+
+export default async function Home() {
+  await enforcePageVisibility("home");
+  const config = await getSiteConfig();
+
   return (
     <div>
       <Nav />
@@ -95,14 +104,11 @@ export default function Home() {
       <section className="section home-hero">
         <div className="container home-hero-grid">
           <div className="home-hero-left">
-            <img className="hero-logo" src="/logo.png" alt="The Silver Brook Public School logo" />
-            <p className="eyebrow">THE SILVER BROOK PUBLIC SCHOOL</p>
-            <h1>Learning is the Key to Leadership</h1>
+            <img className="hero-logo" src={config.logoPath || "/logo.png"} alt={`${config.schoolName} logo`} />
+            <p className="eyebrow">{config.schoolName.toUpperCase()}</p>
+            <h1>{config.tagline}</h1>
             <p className="home-subline">Where Knowledge Sparks Confidence</p>
-            <p>
-              Pillaiyar Kovil Street, Near Astalakshmi Temple, Karatoor,
-              Gobichettipalayam, Erode District - 638476
-            </p>
+            <p>{config.address}</p>
             <div className="home-badges">
               <span className="home-badge">Admissions Open - 2026-27</span>
               <span className="home-badge">Grade I to VII</span>
@@ -176,16 +182,16 @@ export default function Home() {
               <span className="icon" aria-hidden="true">
                 📞
               </span>
-              <a href="tel:+919944055929">
-                <strong>Call Us:</strong> 99440 55929
+              <a href={`tel:${formatPhoneForHref(config.contactPhone)}`}>
+                <strong>Call Us:</strong> {config.contactPhone}
               </a>
             </div>
             <div className="info-row">
               <span className="icon" aria-hidden="true">
                 ✉️
               </span>
-              <a href="mailto:thesilverbrookpublicschool@gmail.com">
-                <strong>Email:</strong> thesilverbrookpublicschool@gmail.com
+              <a href={`mailto:${config.contactEmail}`}>
+                <strong>Email:</strong> {config.contactEmail}
               </a>
             </div>
           </div>

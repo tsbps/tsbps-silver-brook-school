@@ -2,19 +2,55 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSiteConfig } from "@/components/SiteConfigProvider";
+import type { ManagedPageKey } from "@/lib/site-config-schema";
 
 const navLinks = [
-  { href: "/about", label: "About" },
-  { href: "/academics", label: "Academics" },
-  { href: "/admissions", label: "Admissions" },
-  { href: "/campus", label: "Campus" },
-  { href: "/activities", label: "Activities" },
-  { href: "/news", label: "News" },
-  { href: "/contact", label: "Contact" },
-];
+  { href: "/about", label: "About", pageKey: "about" },
+  { href: "/academics", label: "Academics", pageKey: "academics" },
+  { href: "/admissions", label: "Admissions", pageKey: "admissions" },
+  { href: "/campus", label: "Campus", pageKey: "campus" },
+  { href: "/activities", label: "Activities", pageKey: "activities" },
+  { href: "/news", label: "News", pageKey: "news" },
+  { href: "/contact", label: "Contact", pageKey: "contact" },
+] as const satisfies ReadonlyArray<{ href: string; label: string; pageKey: ManagedPageKey }>;
+
+function toVisibleLinks(hiddenPages: ManagedPageKey[]) {
+  return navLinks.filter((link) => !hiddenPages.includes(link.pageKey));
+}
+
+function formatPhoneForHref(phone: string) {
+  return phone.replace(/[^\d+]/g, "");
+}
+
+function splitHeaderName(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= 2) {
+    return {
+      lineOne: words.join(" ") || "The Silver Brook",
+      lineTwo: "Public School",
+    };
+  }
+
+  const middle = Math.ceil(words.length / 2);
+  return {
+    lineOne: words.slice(0, middle).join(" "),
+    lineTwo: words.slice(middle).join(" "),
+  };
+}
+
+const safeFallback = {
+  lineOne: "The Silver Brook",
+  lineTwo: "Public School",
+};
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
+  const config = useSiteConfig();
+  const visibleLinks = toVisibleLinks(config.hiddenPages);
+  const nameLines = config.schoolNameShort
+    ? splitHeaderName(config.schoolNameShort)
+    : safeFallback;
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -38,23 +74,25 @@ export default function Nav() {
     <header className="nav-shell">
       <div className="container nav-bar">
         <Link href="/" className="logo">
-          <img className="logo-image" src="/logo.png" alt="The Silver Brook Public School logo" />
+          <img className="logo-image" src={config.logoPath || "/logo.png"} alt={`${config.schoolName} logo`} />
           <span className="logo-text">
-            <strong>The Silver Brook</strong>
-            <span>Public School</span>
+            <strong>{nameLines.lineOne}</strong>
+            <span>{nameLines.lineTwo}</span>
           </span>
         </Link>
         <nav className="nav-links">
-          {navLinks.map((link) => (
+          {visibleLinks.map((link) => (
             <Link key={link.href} href={link.href}>
               {link.label}
             </Link>
           ))}
         </nav>
         <div className="nav-actions">
-          <Link href="/admissions" className="button">
-            Apply Now
-          </Link>
+          {!config.hiddenPages.includes("admissions") ? (
+            <Link href="/admissions" className="button">
+              Apply Now
+            </Link>
+          ) : null}
         </div>
         <button
           className="nav-toggle"
@@ -74,10 +112,10 @@ export default function Nav() {
         <aside className="mobile-menu-panel" role="dialog" aria-modal="true" aria-label="Mobile navigation">
           <div className="mobile-menu-head">
             <div className="mobile-menu-brand">
-              <img className="logo-image" src="/logo.png" alt="The Silver Brook Public School logo" />
+              <img className="logo-image" src={config.logoPath || "/logo.png"} alt={`${config.schoolName} logo`} />
               <div className="logo-text">
-                <strong>The Silver Brook</strong>
-                <span>Public School</span>
+                <strong>{nameLines.lineOne}</strong>
+                <span>{nameLines.lineTwo}</span>
               </div>
             </div>
             <button
@@ -90,14 +128,17 @@ export default function Nav() {
             </button>
           </div>
           <nav className="mobile-menu-links" aria-label="Mobile links">
-            {navLinks.map((link) => (
+            {visibleLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
                 {link.label}
               </Link>
             ))}
-            <Link href="/admissions" className="button" onClick={() => setOpen(false)}>
-              Apply Now
-            </Link>
+            {!config.hiddenPages.includes("admissions") ? (
+              <Link href="/admissions" className="button" onClick={() => setOpen(false)}>
+                Apply Now
+              </Link>
+            ) : null}
+            <a href={`tel:${formatPhoneForHref(config.contactPhone)}`}>Call Office</a>
           </nav>
         </aside>
       </div>

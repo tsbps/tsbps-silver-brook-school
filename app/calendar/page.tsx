@@ -1,15 +1,14 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { getSiteConfig } from "@/lib/site-config";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-const events = [
-  { date: "Mar 05", title: "Annual Sports Day" },
-  { date: "Mar 18", title: "Parent-Teacher Meetings" },
-  { date: "Apr 02", title: "Science Expo" },
-  { date: "Apr 20", title: "Summer Break Begins" },
-];
+export default async function CalendarPage() {
+  await enforcePageVisibility("calendar");
+  const config = await getSiteConfig();
+  const events = config.events;
 
-export default function CalendarPage() {
   return (
     <div>
       <Nav />

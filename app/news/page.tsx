@@ -1,27 +1,14 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { getSiteConfig } from "@/lib/site-config";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-const newsItems = [
-  {
-    date: "March 2026",
-    title: "Admissions open for Grades I–VII (2026–27)",
-  },
-  {
-    date: "April 2026",
-    title: "Faculty onboarding and classroom setup",
-  },
-  {
-    date: "May 2026",
-    title: "Campus inauguration preparations",
-  },
-  {
-    date: "June 2026",
-    title: "Parent orientation and readiness week",
-  },
-];
+export default async function NewsPage() {
+  await enforcePageVisibility("news");
+  const config = await getSiteConfig();
+  const newsItems = config.events;
 
-export default function NewsPage() {
   return (
     <div>
       <Nav />

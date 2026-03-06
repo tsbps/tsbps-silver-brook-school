@@ -2,8 +2,10 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import Link from "next/link";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-export default function CampusPage() {
+export default async function CampusPage() {
+  await enforcePageVisibility("campus");
   return (
     <div>
       <Nav />

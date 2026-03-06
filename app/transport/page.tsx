@@ -1,8 +1,10 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-export default function TransportPage() {
+export default async function TransportPage() {
+  await enforcePageVisibility("transport");
   return (
     <div>
       <Nav />

@@ -1,12 +1,19 @@
 import Link from "next/link";
+import { getSiteConfig } from "@/lib/site-config";
 
-export default function Footer() {
+function formatPhoneForHref(phone: string) {
+  return phone.replace(/[^\d+]/g, "");
+}
+
+export default async function Footer() {
+  const config = await getSiteConfig();
+
   return (
     <footer>
       <div className="container">
         <div className="grid grid-3">
           <div className="footer-contact">
-            <h4>The Silver Brook Public School</h4>
+            <h4>{config.schoolName}</h4>
             <div className="info-row">
               <span className="icon" aria-hidden="true">
                 📍
@@ -16,8 +23,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
               >
-                Pillaiyar Kovil Street, Near Astalakshmi Temple, Karatoor,
-                Gobichettipalayam, Erode district - 638476.
+                {config.address}
               </a>
             </div>
             <div className="divider" />
@@ -25,15 +31,13 @@ export default function Footer() {
               <span className="icon" aria-hidden="true">
                 📞
               </span>
-              <a href="tel:+919944055929">Phone: +91 99440 55929</a>
+              <a href={`tel:${formatPhoneForHref(config.contactPhone)}`}>Phone: {config.contactPhone}</a>
             </div>
             <div className="info-row">
               <span className="icon" aria-hidden="true">
                 ✉️
               </span>
-              <a href="mailto:thesilverbrookpublicschool@gmail.com">
-                Email: thesilverbrookpublicschool@gmail.com
-              </a>
+              <a href={`mailto:${config.contactEmail}`}>Email: {config.contactEmail}</a>
             </div>
           </div>
           <div>
@@ -66,7 +70,7 @@ export default function Footer() {
         </div>
         <div className="divider" />
         <div className="footer-bottom">
-          <span>© 2026 The Silver Brook Public School. All rights reserved.</span>
+          <span>© 2026 {config.schoolName}. All rights reserved.</span>
           <span>
             Designed and developed by{" "}
             <a href="https://wowmindz.com" target="_blank" rel="noreferrer">

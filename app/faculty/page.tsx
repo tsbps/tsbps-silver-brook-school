@@ -1,6 +1,7 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
 const faculty = [
   { name: "Ms. Revathi Kumar", role: "Principal" },
@@ -11,7 +12,8 @@ const faculty = [
   { name: "Mr. Karthik Srinivasan", role: "Sports Director" },
 ];
 
-export default function FacultyPage() {
+export default async function FacultyPage() {
+  await enforcePageVisibility("faculty");
   return (
     <div>
       <Nav />

@@ -1,8 +1,10 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-export default function HostelPage() {
+export default async function HostelPage() {
+  await enforcePageVisibility("hostel");
   return (
     <div>
       <Nav />

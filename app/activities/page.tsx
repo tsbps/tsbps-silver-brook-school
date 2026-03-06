@@ -1,6 +1,7 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
 const clubs = [
   "Robotics & Coding",
@@ -13,7 +14,8 @@ const clubs = [
   "Community Service",
 ];
 
-export default function ActivitiesPage() {
+export default async function ActivitiesPage() {
+  await enforcePageVisibility("activities");
   return (
     <div>
       <Nav />

@@ -1,8 +1,11 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import InquiryForm from "@/components/InquiryForm";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  await enforcePageVisibility("contact");
   return (
     <div>
       <Nav />
@@ -49,6 +52,9 @@ export default function ContactPage() {
             <p>Monday to Friday: 8:30 AM - 4:00 PM</p>
             <p>Saturday: 9:00 AM - 1:00 PM</p>
             <p>Sunday: Closed</p>
+            <div className="divider" />
+            <h3>Feedback / Inquiry Form</h3>
+            <InquiryForm />
           </div>
         </div>
       </section>

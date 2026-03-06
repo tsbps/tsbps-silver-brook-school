@@ -1,6 +1,7 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
 const docs = [
   "Admission Form",
@@ -11,7 +12,8 @@ const docs = [
   "Policy Handbook",
 ];
 
-export default function DownloadsPage() {
+export default async function DownloadsPage() {
+  await enforcePageVisibility("downloads");
   return (
     <div>
       <Nav />

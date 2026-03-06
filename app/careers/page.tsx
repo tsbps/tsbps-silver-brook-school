@@ -1,8 +1,10 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
-export default function CareersPage() {
+export default async function CareersPage() {
+  await enforcePageVisibility("careers");
   return (
     <div>
       <Nav />

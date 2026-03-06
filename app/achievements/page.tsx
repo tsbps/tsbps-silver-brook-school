@@ -1,6 +1,7 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
 const milestones = [
   "Founding faculty onboarded",
@@ -11,7 +12,8 @@ const milestones = [
   "Campus inauguration planned for 2026",
 ];
 
-export default function AchievementsPage() {
+export default async function AchievementsPage() {
+  await enforcePageVisibility("achievements");
   return (
     <div>
       <Nav />

@@ -1,6 +1,7 @@
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
+import { enforcePageVisibility } from "@/lib/page-visibility";
 
 const policies = [
   "Child protection policy",
@@ -11,7 +12,8 @@ const policies = [
   "Transport safety guidelines",
 ];
 
-export default function PoliciesPage() {
+export default async function PoliciesPage() {
+  await enforcePageVisibility("policies");
   return (
     <div>
       <Nav />
