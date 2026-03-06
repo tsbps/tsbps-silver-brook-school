@@ -111,6 +111,7 @@ export default async function Home() {
             <div className="home-badges">
               <span className="home-badge">Admissions Open - 2026-27</span>
               <span className="home-badge">Grade I to VII</span>
+              <span className="home-badge">I believe I can change the world</span>
             </div>
             <div className="home-actions">
               <Link href="/admissions" className="button">
