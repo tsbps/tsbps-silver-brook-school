@@ -1188,6 +1188,20 @@ code {
   margin-top: -2px;
 }
 
+.home-vision-block {
+  display: grid;
+  gap: 8px;
+}
+
+.home-vision-block p {
+  color: var(--ink-700);
+  line-height: 1.55;
+}
+
+.home-vision-block strong {
+  color: var(--ink-900);
+}
+
 .home-badges {
   display: flex;
   flex-wrap: wrap;

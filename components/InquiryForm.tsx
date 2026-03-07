@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 export default function InquiryForm() {
+  const [type, setType] = useState<"feedback" | "inquiry">("inquiry");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ export default function InquiryForm() {
       const response = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, email, message }),
+        body: JSON.stringify({ type, name, phone, email, message }),
       });
 
       const result = (await response.json()) as { ok: boolean; message?: string };
@@ -41,6 +42,13 @@ export default function InquiryForm() {
 
   return (
     <form className="inquiry-form" onSubmit={onSubmit}>
+      <label>
+        Type
+        <select value={type} onChange={(event) => setType(event.target.value as "feedback" | "inquiry")}>
+          <option value="inquiry">Inquiry</option>
+          <option value="feedback">Feedback</option>
+        </select>
+      </label>
       <label>
         Name
         <input value={name} onChange={(event) => setName(event.target.value)} required />

@@ -52,7 +52,7 @@ export default function ArticleCarousel({
                 <p className="article-category">{post.category}</p>
               </div>
               <Link className="button secondary article-read-btn" href={`${basePath}/${post.slug}`}>
-                Show In Detail
+                Learn More
               </Link>
             </div>
             <p>{post.summary}</p>

@@ -107,8 +107,14 @@ export default async function Home() {
             <p className="eyebrow home-hero-eyebrow">THE SILVER BROOK PUBLIC SCHOOL</p>
             <h1 className="home-gradient-title">{config.tagline}</h1>
             <p className="home-subline">Where Knowledge Sparks Confidence</p>
-            <p className="home-vision-line">I believe I can change the world</p>
-            <p className="home-address">{config.address}</p>
+            <div className="home-vision-block">
+              <p>
+                <strong>Vision:</strong> To nurture confident, ethical, and future-ready learners who lead with knowledge.
+              </p>
+              <p>
+                <strong>Mission:</strong> To provide a safe, technology-integrated, and value-driven learning environment that builds academic excellence and life skills.
+              </p>
+            </div>
             <div className="home-badges">
               <span className="home-badge">Admissions Open - 2026-27</span>
               <span className="home-badge">Grade I to VII</span>

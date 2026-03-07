@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     const phone = body.phone?.trim() ?? "";
     const email = body.email?.trim() ?? "";
     const message = body.message?.trim() ?? "";
+    const type = body.type === "feedback" ? "feedback" : "inquiry";
 
     if (!name || !phone || !message) {
       return NextResponse.json(
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
 
     const item: InquiryItem = {
       id: `inquiry-${Date.now()}`,
+      type,
       name: name.slice(0, 80),
       phone: phone.slice(0, 30),
       email: email.slice(0, 120),

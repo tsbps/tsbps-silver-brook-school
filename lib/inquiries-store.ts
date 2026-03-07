@@ -3,6 +3,7 @@ import path from "path";
 
 export interface InquiryItem {
   id: string;
+  type: "feedback" | "inquiry";
   name: string;
   phone: string;
   email: string;
@@ -14,6 +15,18 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const INQUIRIES_PATH = path.join(DATA_DIR, "inquiries.json");
 const KV_KEY = "site-inquiries";
 const FIREBASE_KEY = "inquiries";
+
+function normalizeInquiry(input: Partial<InquiryItem>, index: number): InquiryItem {
+  return {
+    id: input.id?.toString().trim() || `inquiry-${Date.now()}-${index}`,
+    type: input.type === "feedback" ? "feedback" : "inquiry",
+    name: (input.name ?? "").toString().trim().slice(0, 80),
+    phone: (input.phone ?? "").toString().trim().slice(0, 30),
+    email: (input.email ?? "").toString().trim().slice(0, 120),
+    message: (input.message ?? "").toString().trim().slice(0, 1200),
+    createdAt: (input.createdAt ?? new Date().toISOString()).toString().trim().slice(0, 60),
+  };
+}
 
 function hasKvConfig() {
   return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
@@ -37,8 +50,8 @@ async function kvFetch(pathname: string) {
 async function readInquiriesLocal(): Promise<InquiryItem[]> {
   try {
     const raw = await fs.readFile(INQUIRIES_PATH, "utf8");
-    const parsed = JSON.parse(raw) as InquiryItem[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(raw) as Partial<InquiryItem>[];
+    return Array.isArray(parsed) ? parsed.map(normalizeInquiry) : [];
   } catch {
     return [];
   }
@@ -54,8 +67,8 @@ async function readInquiriesFromKv(): Promise<InquiryItem[]> {
   try {
     const result = (await kvFetch(`/get/${encodeURIComponent(KV_KEY)}`)) as { result?: string };
     if (!result?.result) return [];
-    const parsed = JSON.parse(result.result) as InquiryItem[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(result.result) as Partial<InquiryItem>[];
+    return Array.isArray(parsed) ? parsed.map(normalizeInquiry) : [];
   } catch {
     return [];
   }
@@ -75,8 +88,8 @@ async function readInquiriesFromFirebase(): Promise<InquiryItem[]> {
     cache: "no-store",
   });
   if (!response.ok) throw new Error(`Firebase read failed: ${response.status}`);
-  const payload = (await response.json()) as InquiryItem[] | null;
-  return Array.isArray(payload) ? payload : [];
+  const payload = (await response.json()) as Partial<InquiryItem>[] | null;
+  return Array.isArray(payload) ? payload.map(normalizeInquiry) : [];
 }
 
 async function writeInquiriesToFirebase(next: InquiryItem[]) {

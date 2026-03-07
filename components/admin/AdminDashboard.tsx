@@ -1168,6 +1168,7 @@ export default function AdminDashboard({ initialConfig }: AdminDashboardProps) {
                         })}
                       </span>
                     </div>
+                    <p className="article-category">{item.type === "feedback" ? "Feedback" : "Inquiry"}</p>
                     <p>
                       <strong>Phone:</strong> {item.phone}
                     </p>

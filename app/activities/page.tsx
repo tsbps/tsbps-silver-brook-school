@@ -3,7 +3,7 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
 
-const programs = [
+const activityPrograms = [
   {
     title: "Robotics & Coding",
     description: "Hands-on STEM studio with guided builds, logic challenges, and beginner coding tracks.",
@@ -34,6 +34,9 @@ const programs = [
     format: "Studio activity blocks",
     outcome: "Creative thinking",
   },
+];
+
+const clubPrograms = [
   {
     title: "Debate & Public Speaking",
     description: "Speech structure, group discussions, and argument framing for confident public speaking.",
@@ -67,17 +70,40 @@ export default async function ActivitiesPage() {
         ctaHref="/calendar"
       />
       <section className="section section-pattern">
-        <div className="container grid grid-3">
-          {programs.map((program) => (
-            <article className="card activity-program-card" key={program.title}>
-              <h3>{program.title}</h3>
-              <p>{program.description}</p>
-              <div className="activity-program-meta">
-                <span>{program.format}</span>
-                <strong>{program.outcome}</strong>
-              </div>
-            </article>
-          ))}
+        <div className="container">
+          <div className="home-group-head">
+            <h2>Activities</h2>
+            <p>Structured programs that build confidence, creativity, and practical skills.</p>
+          </div>
+          <div className="grid grid-3">
+            {activityPrograms.map((program) => (
+              <article className="card activity-program-card" key={program.title}>
+                <h3>{program.title}</h3>
+                <p>{program.description}</p>
+                <div className="activity-program-meta">
+                  <span>{program.format}</span>
+                  <strong>{program.outcome}</strong>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="divider" />
+          <div className="home-group-head">
+            <h2>Clubs</h2>
+            <p>Club-based experiences focused on leadership, collaboration, and civic responsibility.</p>
+          </div>
+          <div className="grid grid-3">
+            {clubPrograms.map((program) => (
+              <article className="card activity-program-card" key={program.title}>
+                <h3>{program.title}</h3>
+                <p>{program.description}</p>
+                <div className="activity-program-meta">
+                  <span>{program.format}</span>
+                  <strong>{program.outcome}</strong>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
       <Footer />
