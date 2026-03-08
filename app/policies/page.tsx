@@ -2,6 +2,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 const policies = [
   "Child protection policy",
@@ -14,13 +15,14 @@ const policies = [
 
 export default async function PoliciesPage() {
   await enforcePageVisibility("policies");
+  const hero = templatePageHeroes.policies!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Policies"
-        eyebrow="Student Safety"
-        description="Clear guidelines that keep our community safe, respectful, and inclusive."
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
         ctaLabel="Download Policy Pack"
         ctaHref="/downloads"
       />

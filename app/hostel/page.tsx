@@ -2,17 +2,15 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 export default async function HostelPage() {
   await enforcePageVisibility("hostel");
+  const hero = templatePageHeroes.hostel!;
   return (
     <div>
       <Nav />
-      <PageHero
-        title="Hostel"
-        eyebrow="Residential Life"
-        description="Comfortable, supervised hostel facilities for students who need residential support."
-      />
+      <PageHero title={hero.title} eyebrow={hero.eyebrow} description={hero.description} />
       <section className="section">
         <div className="container grid grid-2">
           <div className="card info-card">

@@ -2,6 +2,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 const milestones = [
   "Founding faculty onboarded",
@@ -14,13 +15,14 @@ const milestones = [
 
 export default async function AchievementsPage() {
   await enforcePageVisibility("achievements");
+  const hero = templatePageHeroes.achievements!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Early Milestones"
-        eyebrow="Launching 2026–27"
-        description="As a new school, we are building strong foundations that will lead to future achievements."
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
         ctaLabel="Explore News"
         ctaHref="/news"
       />

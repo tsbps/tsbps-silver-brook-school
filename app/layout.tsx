@@ -5,16 +5,20 @@ import "./globals.css";
 import { getSiteConfig } from "@/lib/site-config";
 import { SiteConfigProvider } from "@/components/SiteConfigProvider";
 import SplashScreen from "@/components/SplashScreen";
+import { getTemplateSiteIdentity } from "@/config/template-config";
 
-export const metadata: Metadata = {
-  title: "The Silver Brook Public School",
-  description:
-    "The Silver Brook Public School — learning with purpose, rooted in community and excellence.",
-  icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  const site = getTemplateSiteIdentity(config);
+  return {
+    title: site.siteName,
+    description: `${site.siteName} — ${site.tagline}`,
+    icons: {
+      icon: site.logo,
+      apple: site.logo,
+    },
+  };
+}
 
 export const viewport = {
   width: "device-width",

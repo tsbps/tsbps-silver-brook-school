@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
-import { isPageHidden } from "@/lib/site-config";
+import { getSiteConfig } from "@/lib/site-config";
+import { isPageVisibleInTemplate } from "@/config/page-registry";
 import type { ManagedPageKey } from "@/lib/site-config-schema";
 
 export async function enforcePageVisibility(page: ManagedPageKey) {
-  if (await isPageHidden(page)) {
+  const config = await getSiteConfig();
+  if (!isPageVisibleInTemplate(config, page)) {
     notFound();
   }
 }

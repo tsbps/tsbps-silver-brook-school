@@ -3,39 +3,36 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import Link from "next/link";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
+import InfoCardGrid from "@/components/sections/InfoCardGrid";
+
+const admissionsCards = [
+  {
+    title: "Admissions Process",
+    description: "Submit enquiry, campus visit, document verification, and orientation.",
+  },
+  {
+    title: "Required Documents",
+    description: "Birth certificate, records, transfer certificate, and address proof.",
+  },
+];
 
 export default async function AdmissionsPage() {
   await enforcePageVisibility("admissions");
+  const hero = templatePageHeroes.admissions!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Admissions"
-        eyebrow="Join the Founding Batches"
-        description="Admissions are open for Grades I to VII for the 2026–27 academic year."
-        ctaLabel="Fees & Scholarships"
-        ctaHref="/fees"
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
+        ctaLabel={hero.ctaLabel}
+        ctaHref={hero.ctaHref}
       />
       <section className="section section-pattern">
-        <div className="container grid grid-2">
-          <div className="card info-card">
-            <h3>Admissions Process</h3>
-            <ul className="list">
-              <li>Submit enquiry form</li>
-              <li>Campus visit and interaction</li>
-              <li>Document verification</li>
-              <li>Confirmation and orientation</li>
-            </ul>
-          </div>
-          <div className="card info-card">
-            <h3>Required Documents</h3>
-            <ul className="list">
-              <li>Birth certificate</li>
-              <li>Previous school records</li>
-              <li>Transfer certificate (if applicable)</li>
-              <li>Address proof</li>
-            </ul>
-          </div>
+        <div className="container">
+          <InfoCardGrid items={admissionsCards} columns={2} />
         </div>
         <div className="container">
           <div className="divider" />

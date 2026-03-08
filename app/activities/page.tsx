@@ -2,6 +2,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 const activityPrograms = [
   {
@@ -59,15 +60,16 @@ const clubPrograms = [
 
 export default async function ActivitiesPage() {
   await enforcePageVisibility("activities");
+  const hero = templatePageHeroes.activities!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Activities & Clubs"
-        eyebrow="Student Life"
-        description="Sports, language development, and extracurriculars that build confidence and leadership."
-        ctaLabel="View Calendar"
-        ctaHref="/calendar"
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
+        ctaLabel={hero.ctaLabel}
+        ctaHref={hero.ctaHref}
       />
       <section className="section section-pattern">
         <div className="container">

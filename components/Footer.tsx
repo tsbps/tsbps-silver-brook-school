@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getSiteConfig } from "@/lib/site-config";
+import { getFooterQuickLinks, isPageVisibleInTemplate } from "@/config/page-registry";
+import { templateFooterHours } from "@/content/page-content";
 
 function formatPhoneForHref(phone: string) {
   return phone.replace(/[^\d+]/g, "");
@@ -7,6 +9,8 @@ function formatPhoneForHref(phone: string) {
 
 export default async function Footer() {
   const config = await getSiteConfig();
+  const quickLinks = getFooterQuickLinks(config);
+  const showFooterCta = isPageVisibleInTemplate(config, "contact");
 
   return (
     <footer>
@@ -37,29 +41,26 @@ export default async function Footer() {
           <div>
             <h4>Quick Links</h4>
             <div className="divider" />
-            <p>
-              <Link href="/admissions">Admissions</Link>
-            </p>
-            <p>
-              <Link href="/academics">Academics</Link>
-            </p>
-            <p>
-              <Link href="/campus">Campus & Facilities</Link>
-            </p>
-            <p>
-              <Link href="/news">News & Events</Link>
-            </p>
+            {quickLinks.map((item) => (
+              <p key={item.key}>
+                <Link href={item.href}>{item.label}</Link>
+              </p>
+            ))}
           </div>
           <div>
             <h4>School Hours</h4>
             <div className="divider" />
-            <p>Mon - Fri: 8:30 AM - 4:00 PM</p>
-            <p>Sat: 9:00 AM - 1:00 PM</p>
-            <p>Sun: Closed</p>
-            <div className="divider" />
-            <Link className="button secondary footer-contact-button" href="/contact">
-              Contact Us
-            </Link>
+            {templateFooterHours.map((slot) => (
+              <p key={slot}>{slot}</p>
+            ))}
+            {showFooterCta ? (
+              <>
+                <div className="divider" />
+                <Link className="button secondary footer-contact-button" href="/contact">
+                  Contact Us
+                </Link>
+              </>
+            ) : null}
           </div>
         </div>
         <div className="divider" />

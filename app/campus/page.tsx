@@ -3,51 +3,34 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import Link from "next/link";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
+import InfoCardGrid from "@/components/sections/InfoCardGrid";
+
+const campusCards = [
+  { badge: "SC", title: "Smart Classrooms", description: "Interactive boards, flexible seating, and digital resources." },
+  { badge: "ST", title: "STEM Labs", description: "Robotics, coding, and science labs for hands-on learning." },
+  { badge: "LC", title: "Learning Commons", description: "Reading spaces and curated resources for every grade." },
+  { badge: "SA", title: "Sports Arena", description: "Outdoor fields, indoor courts, and wellness studios." },
+  { badge: "AR", title: "Arts Studios", description: "Dedicated spaces for music, dance, and visual arts." },
+  { badge: "SF", title: "Safe Campus", description: "Professional staff, security systems, and clear safety policies." },
+];
 
 export default async function CampusPage() {
   await enforcePageVisibility("campus");
+  const hero = templatePageHeroes.campus!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Campus & Facilities"
-        eyebrow="Our Spaces"
-        description="Modern facilities that support technology-enabled learning, safety, and well-being."
-        ctaLabel="See Gallery"
-        ctaHref="/gallery"
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
+        ctaLabel={hero.ctaLabel}
+        ctaHref={hero.ctaHref}
       />
       <section className="section">
-        <div className="container grid grid-3">
-          <div className="card info-card">
-            <span className="icon-badge" aria-hidden="true">SC</span>
-            <h3>Smart Classrooms</h3>
-            <p>Interactive boards, flexible seating, and digital resources.</p>
-          </div>
-          <div className="card info-card">
-            <span className="icon-badge" aria-hidden="true">ST</span>
-            <h3>STEM Labs</h3>
-            <p>Robotics, coding, and science labs for hands-on learning.</p>
-          </div>
-          <div className="card info-card">
-            <span className="icon-badge" aria-hidden="true">LC</span>
-            <h3>Learning Commons</h3>
-            <p>Reading spaces and curated resources for every grade.</p>
-          </div>
-          <div className="card info-card">
-            <span className="icon-badge" aria-hidden="true">SA</span>
-            <h3>Sports Arena</h3>
-            <p>Outdoor fields, indoor courts, and wellness studios.</p>
-          </div>
-          <div className="card info-card">
-            <span className="icon-badge" aria-hidden="true">AR</span>
-            <h3>Arts Studios</h3>
-            <p>Dedicated spaces for music, dance, and visual arts.</p>
-          </div>
-          <div className="card info-card">
-            <span className="icon-badge" aria-hidden="true">SF</span>
-            <h3>Safe Campus</h3>
-            <p>Professional staff, security systems, and clear safety policies.</p>
-          </div>
+        <div className="container">
+          <InfoCardGrid items={campusCards} />
         </div>
         <div className="container">
           <div className="divider" />

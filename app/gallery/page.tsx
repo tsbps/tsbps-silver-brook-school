@@ -2,17 +2,15 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 export default async function GalleryPage() {
   await enforcePageVisibility("gallery");
+  const hero = templatePageHeroes.gallery!;
   return (
     <div>
       <Nav />
-      <PageHero
-        title="Gallery"
-        eyebrow="Campus Moments"
-        description="Snapshots from classrooms, celebrations, and student showcases."
-      />
+      <PageHero title={hero.title} eyebrow={hero.eyebrow} description={hero.description} />
       <section className="section">
         <div className="container grid grid-3">
           {[

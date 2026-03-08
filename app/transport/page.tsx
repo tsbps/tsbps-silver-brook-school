@@ -2,17 +2,15 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 export default async function TransportPage() {
   await enforcePageVisibility("transport");
+  const hero = templatePageHeroes.transport!;
   return (
     <div>
       <Nav />
-      <PageHero
-        title="Transport"
-        eyebrow="Safe Commute"
-        description="Planned GPS-enabled school buses with trained staff for student safety."
-      />
+      <PageHero title={hero.title} eyebrow={hero.eyebrow} description={hero.description} />
       <section className="section">
         <div className="container grid grid-2">
           <div className="card info-card">

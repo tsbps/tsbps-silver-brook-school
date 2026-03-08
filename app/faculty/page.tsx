@@ -2,6 +2,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 const faculty = [
   { name: "Ms. Revathi Kumar", role: "Principal" },
@@ -14,13 +15,14 @@ const faculty = [
 
 export default async function FacultyPage() {
   await enforcePageVisibility("faculty");
+  const hero = templatePageHeroes.faculty!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Leadership & Faculty"
-        eyebrow="Our People"
-        description="Experienced educators and mentors dedicated to nurturing confident, capable learners."
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
         ctaLabel="Contact the Team"
         ctaHref="/contact"
       />

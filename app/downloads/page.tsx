@@ -2,6 +2,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 const docs = [
   "Admission Form",
@@ -14,14 +15,11 @@ const docs = [
 
 export default async function DownloadsPage() {
   await enforcePageVisibility("downloads");
+  const hero = templatePageHeroes.downloads!;
   return (
     <div>
       <Nav />
-      <PageHero
-        title="Downloads"
-        eyebrow="Resources"
-        description="Forms, prospectus, and key documents for families."
-      />
+      <PageHero title={hero.title} eyebrow={hero.eyebrow} description={hero.description} />
       <section className="section">
         <div className="container grid grid-3">
           {docs.map((doc) => (

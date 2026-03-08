@@ -3,18 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSiteConfig } from "@/components/SiteConfigProvider";
-import type { ManagedPageKey } from "@/lib/site-config-schema";
-
-const navLinks = [
-  { href: "/about", label: "About", pageKey: "about" },
-  { href: "/academics", label: "Academics", pageKey: "academics" },
-  { href: "/admissions", label: "Admissions", pageKey: "admissions" },
-  { href: "/campus", label: "Campus", pageKey: "campus" },
-  { href: "/activities", label: "Activities", pageKey: "activities" },
-  { href: "/blog", label: "Blog", pageKey: "blog" },
-  { href: "/news", label: "News", pageKey: "news" },
-  { href: "/contact", label: "Contact", pageKey: "contact" },
-] as const satisfies ReadonlyArray<{ href: string; label: string; pageKey: ManagedPageKey }>;
+import { getPrimaryNavigation, isPageVisibleInTemplate } from "@/config/page-registry";
 
 function formatPhoneForHref(phone: string) {
   return phone.replace(/[^\d+]/g, "");
@@ -54,18 +43,11 @@ const safeFallback = {
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const config = useSiteConfig();
-  const hiddenFallback = (config.hiddenPages || []) as ManagedPageKey[];
-  const visiblePages = (config.visiblePages || []) as ManagedPageKey[];
-  const menuPages = (config.menuPages || []) as ManagedPageKey[];
-  const visibleLinks = navLinks.filter((link) => {
-    const generallyVisible = visiblePages.length > 0 ? visiblePages.includes(link.pageKey) : !hiddenFallback.includes(link.pageKey);
-    const inMenu = menuPages.length > 0 ? menuPages.includes(link.pageKey) : generallyVisible;
-    return generallyVisible && inMenu;
-  });
-  const safeLinks = visibleLinks.length > 0 ? visibleLinks : navLinks.filter((link) => !hiddenFallback.includes(link.pageKey));
+  const safeLinks = getPrimaryNavigation(config);
   const nameLines = config.schoolNameShort
     ? splitHeaderName(config.schoolNameShort)
     : safeFallback;
+  const admissionsEnabled = isPageVisibleInTemplate(config, "admissions");
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -97,13 +79,13 @@ export default function Nav() {
         </Link>
         <nav className="nav-links">
           {safeLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
+            <Link key={link.key} href={link.href}>
               {link.label}
             </Link>
           ))}
         </nav>
         <div className="nav-actions">
-          {(visiblePages.length > 0 ? visiblePages.includes("admissions") : !hiddenFallback.includes("admissions")) ? (
+          {admissionsEnabled ? (
             <Link href="/admissions" className="button">
               Apply Now
             </Link>
@@ -151,11 +133,11 @@ export default function Nav() {
           </div>
           <nav className="mobile-menu-links" aria-label="Mobile links">
             {safeLinks.map((link) => (
-              <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
+              <Link key={link.key} href={link.href} onClick={() => setOpen(false)}>
                 {link.label}
               </Link>
             ))}
-            {(visiblePages.length > 0 ? visiblePages.includes("admissions") : !hiddenFallback.includes("admissions")) ? (
+            {admissionsEnabled ? (
               <Link href="/admissions" className="button" onClick={() => setOpen(false)}>
                 Apply Now
               </Link>

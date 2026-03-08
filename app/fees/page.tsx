@@ -2,16 +2,18 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import { enforcePageVisibility } from "@/lib/page-visibility";
+import { templatePageHeroes } from "@/content/page-content";
 
 export default async function FeesPage() {
   await enforcePageVisibility("fees");
+  const hero = templatePageHeroes.fees!;
   return (
     <div>
       <Nav />
       <PageHero
-        title="Fees & Scholarships"
-        eyebrow="Affordability"
-        description="Transparent fee structure with scholarship guidance for deserving students."
+        title={hero.title}
+        eyebrow={hero.eyebrow}
+        description={hero.description}
         ctaLabel="Download Fee Sheet"
         ctaHref="/downloads"
       />
