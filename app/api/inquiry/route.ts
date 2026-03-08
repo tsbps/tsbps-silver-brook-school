@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { addInquiry, type InquiryItem } from "@/lib/inquiries-store";
+import { sendInquiryNotification } from "@/lib/inquiry-mailer";
 
 export async function POST(request: Request) {
   try {
@@ -28,7 +29,13 @@ export async function POST(request: Request) {
     };
 
     await addInquiry(item);
-    return NextResponse.json({ ok: true });
+
+    const mailResult = await sendInquiryNotification(item);
+    if (!mailResult.sent) {
+      console.warn("[inquiry] saved but email not sent:", mailResult.reason);
+    }
+
+    return NextResponse.json({ ok: true, mailSent: mailResult.sent });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to submit inquiry";
     return NextResponse.json({ ok: false, message }, { status: 500 });
